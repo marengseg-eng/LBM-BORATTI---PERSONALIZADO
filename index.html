@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LBM Boratti — Classificador de Skills</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>LBM Boratti — Classificador de Skills</h1>
+    <p class="subtitle">
+      Suba uma conversa exportada do WhatsApp, configure o dicionário de skills
+      e veja quem mencionou o quê.
+    </p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Chat do WhatsApp</h2>
+      <p class="hint">
+        No WhatsApp: <em>abra o grupo → ⋮ → Mais → Exportar conversa → Sem
+        mídia</em>. Você pode subir o <code>.txt</code> ou colar o conteúdo
+        abaixo.
+      </p>
+      <div class="row">
+        <label class="file-input">
+          <input type="file" id="chat-file" accept=".txt,text/plain" />
+          <span>Selecionar arquivo .txt</span>
+        </label>
+        <button type="button" id="chat-sample" class="btn-secondary">
+          Carregar exemplo
+        </button>
+        <button type="button" id="chat-clear" class="btn-secondary">
+          Limpar
+        </button>
+      </div>
+      <textarea
+        id="chat-text"
+        rows="10"
+        placeholder="Cole aqui o conteúdo do chat do WhatsApp…"
+      ></textarea>
+    </section>
+
+    <section class="card">
+      <h2>2. Dicionário de Skills</h2>
+      <p class="hint">
+        Cada skill tem um <strong>nome</strong>, <strong>sinônimos</strong>
+        (separados por vírgula) e uma <strong>descrição</strong>. A detecção é
+        por palavra inteira e ignora acentos/maiúsculas. Salvo no próprio
+        navegador.
+      </p>
+      <div id="skills-editor"></div>
+      <div class="row">
+        <button type="button" id="skill-add">+ Adicionar skill</button>
+        <button type="button" id="skill-save" class="btn-primary">
+          Salvar no navegador
+        </button>
+        <button type="button" id="skill-reset" class="btn-secondary">
+          Restaurar padrão
+        </button>
+        <button type="button" id="skill-export" class="btn-secondary">
+          Exportar JSON
+        </button>
+        <label class="file-input btn-secondary">
+          <input type="file" id="skill-import" accept=".json,application/json" />
+          <span>Importar JSON</span>
+        </label>
+      </div>
+      <p id="skills-status" class="status" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>3. Analisar</h2>
+      <div class="row">
+        <button type="button" id="analyze" class="btn-primary">
+          Analisar conversa
+        </button>
+        <label class="checkbox">
+          <input type="checkbox" id="show-all" />
+          Mostrar também mensagens sem skill detectada
+        </label>
+      </div>
+      <div id="summary" class="summary"></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Resultados</h2>
+      <div class="row">
+        <button type="button" id="export-csv" class="btn-secondary" disabled>
+          Exportar CSV
+        </button>
+        <button type="button" id="export-json" class="btn-secondary" disabled>
+          Exportar JSON
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Remetente</th>
+              <th>Mensagem</th>
+              <th>Skills detectadas</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p id="results-empty" class="empty">
+          Nenhuma análise ainda. Cole um chat e clique em <em>Analisar
+          conversa</em>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>Demo · 100% client-side · seus dados não saem do navegador.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
