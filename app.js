@@ -300,6 +300,78 @@
   const chatText = document.getElementById("chat-text");
   const chatFile = document.getElementById("chat-file");
 
+  // WhatsApp Web põe "[HH:MM, DD/MM/AAAA] Remetente: " em data-pre-plain-text
+  const RE_PRE_PLAIN =
+    /^\[(\d{1,2}:\d{2}(?::\d{2})?),\s*(\d{1,2}\/\d{1,2}\/\d{2,4})\]\s*([^:]+):\s*$/;
+
+  const BLOCK_SELECTOR =
+    "address,article,aside,blockquote,div,dd,dl,dt,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,li,main,nav,ol,p,pre,section,table,tr,ul";
+
+  function extractTextPreservingBr(root) {
+    const clone = root.cloneNode(true);
+    clone.querySelectorAll("script,style").forEach((el) => el.remove());
+    clone.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+    clone.querySelectorAll(BLOCK_SELECTOR).forEach((el) => {
+      el.append("\n");
+    });
+    return clone.textContent.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  function convertPastedHtmlToWhatsapp(html) {
+    if (!html) return "";
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const bubbles = doc.querySelectorAll("[data-pre-plain-text]");
+    if (bubbles.length) {
+      const lines = [];
+      bubbles.forEach((el) => {
+        const prefix = el.getAttribute("data-pre-plain-text") || "";
+        const m = prefix.match(RE_PRE_PLAIN);
+        const body = extractTextPreservingBr(el);
+        if (m) {
+          lines.push(m[2] + " " + m[1] + " - " + m[3].trim() + ": " + body);
+        } else if (body) {
+          lines.push(body);
+        }
+      });
+      return lines.join("\n");
+    }
+    return extractTextPreservingBr(doc.body || doc.documentElement);
+  }
+
+  function insertAtCursor(textarea, value) {
+    textarea.focus();
+    let inserted = false;
+    try {
+      inserted = document.execCommand("insertText", false, value);
+    } catch (_) {
+      inserted = false;
+    }
+    if (inserted) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    if (typeof textarea.setRangeText === "function") {
+      textarea.setRangeText(value, start, end, "end");
+    } else {
+      const v = textarea.value;
+      textarea.value = v.slice(0, start) + value + v.slice(end);
+      const pos = start + value.length;
+      textarea.selectionStart = textarea.selectionEnd = pos;
+    }
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  chatText.addEventListener("paste", (e) => {
+    const dt = e.clipboardData;
+    if (!dt) return;
+    const html = dt.getData("text/html");
+    if (!html) return;
+    const converted = convertPastedHtmlToWhatsapp(html);
+    const plain = dt.getData("text/plain") || "";
+    if (!converted || converted === plain.trim()) return;
+    e.preventDefault();
+    insertAtCursor(chatText, converted);
+  });
+
   chatFile.addEventListener("change", (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
