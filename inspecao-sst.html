@@ -1,0 +1,2287 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a2f4e">
+<title>LBM BORATTI — Inspeção SST Multi-Empresa</title>
+<style>
+/* ============================================================
+   LBM BORATTI — Paleta oficial
+   ============================================================ */
+:root{
+  --azul:#1a2f4e; --azul-2:#24406a; --azul-3:#0f1e33;
+  --laranja:#e67e22; --laranja-2:#cf6d12;
+  --critico:#c0392b; --alto:#d35400; --medio:#956d00; --baixo:#1e8449;
+  --info:#2a4f7c;
+  --bg:#eef1f5; --card:#ffffff; --linha:#d8dee7;
+  --txt:#1f2733; --txt-2:#5a6675; --txt-3:#8a94a3;
+  --sombra:0 1px 3px rgba(15,30,51,.08), 0 4px 16px rgba(15,30,51,.06);
+  --raio:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--txt); font-size:15px; line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+a{color:var(--info)}
+
+/* ---------- Layout ---------- */
+.topbar{
+  position:sticky; top:0; z-index:60; background:var(--azul); color:#fff;
+  display:flex; align-items:center; gap:14px; padding:10px 18px;
+  box-shadow:0 2px 10px rgba(15,30,51,.25);
+}
+.topbar .marca{display:flex;align-items:center;gap:10px;min-width:0}
+.topbar .marca img{max-height:34px;background:#fff;padding:4px 7px;border-radius:5px;display:none}
+.topbar .marca .txt{font-weight:800;letter-spacing:.5px;font-size:1.02rem;white-space:nowrap}
+.topbar .marca .sub{font-size:.68rem;opacity:.7;letter-spacing:.4px;text-transform:uppercase;display:block;font-weight:600}
+.topbar .espaco{flex:1}
+.topbar nav{display:flex;gap:4px;flex-wrap:wrap}
+.topbar nav button{
+  background:transparent;border:1px solid rgba(255,255,255,.22);color:#fff;
+  padding:7px 14px;border-radius:20px;cursor:pointer;font-size:.86rem;font-weight:600;
+  transition:.15s;
+}
+.topbar nav button:hover{background:rgba(255,255,255,.12)}
+.topbar nav button.ativo{background:var(--laranja);border-color:var(--laranja)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 90px}
+.view{display:none} .view.ativa{display:block}
+
+h1,h2,h3,h4{margin:0 0 .5em}
+h1{font-size:1.5rem;color:var(--azul)}
+h2{font-size:1.18rem;color:var(--azul);display:flex;align-items:center;gap:9px}
+h3{font-size:1rem;color:var(--azul)}
+.crumb{font-size:.82rem;color:var(--txt-2);margin-bottom:6px}
+.crumb b{color:var(--azul)}
+.head-row{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.head-row .espaco{flex:1}
+
+/* ---------- Componentes ---------- */
+.card{background:var(--card);border:1px solid var(--linha);border-radius:var(--raio);
+  box-shadow:var(--sombra);padding:16px 18px;margin-bottom:16px}
+.card>h2:first-child,.card>h3:first-child{margin-top:0}
+
+.btn{background:var(--azul);color:#fff;border:none;padding:9px 16px;border-radius:7px;
+  cursor:pointer;font-weight:650;font-size:.87rem;transition:.15s;white-space:nowrap}
+.btn:hover{background:var(--azul-2)}
+.btn:active{transform:translateY(1px)}
+.btn.laranja{background:var(--laranja)} .btn.laranja:hover{background:var(--laranja-2)}
+.btn.ghost{background:#fff;color:var(--azul);border:1px solid var(--linha)}
+.btn.ghost:hover{background:#f4f7fb;border-color:var(--azul)}
+.btn.perigo{background:#fff;color:var(--critico);border:1px solid #e8b4ae}
+.btn.perigo:hover{background:#fdf0ee}
+.btn.mini{padding:5px 10px;font-size:.78rem;border-radius:6px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+label.campo{display:block;margin-bottom:11px}
+label.campo>span{display:block;font-size:.74rem;font-weight:700;color:var(--txt-2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  width:100%;padding:8px 10px;border:1px solid var(--linha);border-radius:7px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--laranja);outline-offset:-1px;border-color:var(--laranja)}
+textarea{resize:vertical;min-height:66px;line-height:1.45}
+.grid{display:grid;gap:0 14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--linha);border-left:5px solid var(--azul);
+  border-radius:var(--raio);padding:13px 15px;box-shadow:var(--sombra)}
+.kpi .n{font-size:1.9rem;font-weight:800;line-height:1;color:var(--azul)}
+.kpi .l{font-size:.71rem;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-2);
+  font-weight:700;margin-top:5px}
+.kpi.critico{border-left-color:var(--critico)} .kpi.critico .n{color:var(--critico)}
+.kpi.alto{border-left-color:var(--alto)}       .kpi.alto .n{color:var(--alto)}
+.kpi.medio{border-left-color:var(--medio)}     .kpi.medio .n{color:var(--medio)}
+.kpi.baixo{border-left-color:var(--baixo)}     .kpi.baixo .n{color:var(--baixo)}
+.kpi.laranja{border-left-color:var(--laranja)} .kpi.laranja .n{color:var(--laranja)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;
+  font-size:.72rem;font-weight:800;letter-spacing:.3px;white-space:nowrap}
+.badge-critico{background:#fadbd8;color:#c0392b;border:1px solid #c0392b}
+.badge-alto   {background:#fdebd0;color:#a04000;border:1px solid #d35400}
+.badge-medio  {background:#fef9e7;color:#7d5a00;border:1px solid #f0c000}
+.badge-baixo  {background:#d4efdf;color:#1e8449;border:1px solid #1e8449}
+.badge-info   {background:#d6eaf8;color:#2a4f7c;border:1px solid #2a4f7c}
+.badge-nc     {background:#f5b7b1;color:#922b21;border:1px solid #922b21}
+.badge-modelo {background:#eceff3;color:#5a6675;border:1px dashed #8a94a3}
+.badge-obs    {background:#d6eaf8;color:#1a5276;border:1px solid #2a4f7c}
+.badge-ai     {background:#f4ecf7;color:#6c3483;border:1px solid #8e44ad}
+.badge-ci     {background:#eaf2f8;color:#1a5276;border:1px solid #2874a6}
+
+/* Listas */
+.lista{display:grid;gap:11px}
+.item{background:var(--card);border:1px solid var(--linha);border-radius:var(--raio);
+  padding:13px 15px;box-shadow:var(--sombra);cursor:pointer;transition:.15s;
+  display:flex;gap:13px;align-items:center}
+.item:hover{border-color:var(--laranja);transform:translateY(-1px)}
+.item .ic{width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:var(--azul);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:800}
+.item .corpo{flex:1;min-width:0}
+.item .corpo .t{font-weight:700;color:var(--azul)}
+.item .corpo .s{font-size:.8rem;color:var(--txt-2)}
+.item .dir{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+.vazio{text-align:center;padding:34px 18px;color:var(--txt-3);border:2px dashed var(--linha);
+  border-radius:var(--raio);background:#fafbfd}
+.vazio .em{font-size:2.1rem;display:block;margin-bottom:8px;opacity:.55}
+
+.aviso{border-left:4px solid var(--laranja);background:#fef5ec;padding:11px 14px;
+  border-radius:7px;font-size:.85rem;margin-bottom:14px;color:#7a4a12}
+.aviso.erro{border-left-color:var(--critico);background:#fdf0ee;color:#8c2f22}
+.aviso.info{border-left-color:var(--info);background:#eef4fb;color:#1a4570}
+
+/* Abas */
+.abas{display:flex;gap:3px;border-bottom:2px solid var(--linha);margin-bottom:16px;
+  overflow-x:auto;padding-bottom:0}
+.abas button{background:none;border:none;border-bottom:3px solid transparent;padding:9px 14px;
+  cursor:pointer;font-weight:700;color:var(--txt-2);font-size:.86rem;white-space:nowrap;margin-bottom:-2px}
+.abas button.ativo{color:var(--azul);border-bottom-color:var(--laranja)}
+.painel{display:none} .painel.ativo{display:block}
+
+/* Tabelas */
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{background:var(--azul);color:#fff;padding:8px 9px;text-align:left;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+td{padding:7px 9px;border-bottom:1px solid var(--linha);vertical-align:middle}
+tr:nth-child(even) td{background:#fafbfd}
+.tab-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:var(--raio)}
+td input,td select{padding:5px 7px;font-size:.84rem;border-radius:5px}
+
+/* Achados */
+.achado{background:var(--card);border:1px solid var(--linha);border-left:6px solid var(--info);
+  border-radius:var(--raio);padding:14px 16px;box-shadow:var(--sombra);margin-bottom:13px}
+.achado.n-critico{border-left-color:var(--critico)}
+.achado.n-alto{border-left-color:var(--alto)}
+.achado.n-medio{border-left-color:var(--medio)}
+.achado.n-baixo{border-left-color:var(--baixo)}
+.achado.modelo{background:repeating-linear-gradient(45deg,#fff,#fff 12px,#fafbfd 12px,#fafbfd 24px)}
+.achado .cab{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
+.achado .cod{font-weight:800;color:var(--azul);font-size:1.02rem;letter-spacing:.5px}
+.achado .cab .espaco{flex:1}
+
+/* Fotos */
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px}
+.foto-card{background:var(--card);border:1px solid var(--linha);border-radius:var(--raio);
+  overflow:hidden;box-shadow:var(--sombra)}
+.foto-wrap{position:relative;background:#0f1e33;aspect-ratio:4/3;overflow:hidden}
+.foto-wrap img{width:100%;height:100%;object-fit:contain;display:block}
+.foto-wrap.pinavel{cursor:crosshair}
+.pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  background:var(--critico);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.5);
+  cursor:pointer;z-index:2}
+.pin.n-alto{background:var(--alto)} .pin.n-medio{background:var(--medio)}
+.pin.n-baixo{background:var(--baixo)} .pin.n-info{background:var(--info)}
+.foto-card .meta{padding:9px 11px}
+.foto-card .meta .leg{font-size:.82rem;min-height:20px}
+.foto-card .meta .sub{font-size:.71rem;color:var(--txt-3);margin-top:4px}
+
+/* Matriz P×C */
+.matriz{border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.matriz td,.matriz th{border:1px solid var(--linha);padding:5px 7px;text-align:center;width:42px}
+.matriz th{background:#eceff3;color:var(--azul);font-size:.66rem}
+.matriz td{cursor:pointer;font-weight:700}
+.matriz td.s-critico{background:#fadbd8;color:#c0392b}
+.matriz td.s-alto{background:#fdebd0;color:#a04000}
+.matriz td.s-medio{background:#fef9e7;color:#7d5a00}
+.matriz td.s-baixo{background:#d4efdf;color:#1e8449}
+.matriz td.sel{outline:3px solid var(--azul);outline-offset:-3px}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(15,30,51,.6);z-index:200;display:none;
+  align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
+.modal.aberto{display:flex}
+.modal-box{background:#fff;border-radius:12px;max-width:780px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal-cab{background:var(--azul);color:#fff;padding:13px 18px;border-radius:12px 12px 0 0;
+  display:flex;align-items:center;gap:12px}
+.modal-cab h3{margin:0;color:#fff;flex:1;font-size:1.03rem}
+.modal-cab .x{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1;padding:0 4px}
+.modal-corpo{padding:18px}
+.modal-pe{padding:13px 18px;border-top:1px solid var(--linha);display:flex;gap:8px;
+  justify-content:flex-end;flex-wrap:wrap}
+
+/* Checklist guiado */
+.chk-grupo{border:1px solid var(--linha);border-radius:9px;margin-bottom:9px;overflow:hidden}
+.chk-grupo>summary{padding:10px 13px;background:#f4f7fb;cursor:pointer;font-weight:700;
+  color:var(--azul);font-size:.88rem;list-style:none;display:flex;align-items:center;gap:9px}
+.chk-grupo>summary::-webkit-details-marker{display:none}
+.chk-grupo>summary .cnt{margin-left:auto;font-size:.72rem;color:var(--txt-2);font-weight:600}
+.chk-item{display:flex;gap:10px;padding:9px 13px;border-top:1px solid var(--linha);align-items:flex-start}
+.chk-item:hover{background:#fafbfd}
+.chk-item input[type=checkbox]{margin-top:3px;width:17px;height:17px;flex:0 0 17px;accent-color:var(--laranja)}
+.chk-item .d{flex:1;min-width:0}
+.chk-item .d .txt{font-size:.86rem}
+.chk-item .d .nr{font-size:.72rem;color:var(--txt-2);margin-top:3px}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--azul);color:#fff;padding:11px 20px;border-radius:24px;font-size:.87rem;
+  font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:400;transition:transform .25s;
+  max-width:90vw;text-align:center}
+.toast.ver{transform:translateX(-50%) translateY(0)}
+
+.small{font-size:.78rem;color:var(--txt-2)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem}
+.sep{height:1px;background:var(--linha);margin:16px 0}
+.chip{display:inline-block;background:#eceff3;border:1px solid var(--linha);border-radius:14px;
+  padding:2px 9px;font-size:.72rem;color:var(--txt-2);font-weight:600;margin:2px 3px 2px 0}
+
+/* ============================================================
+   RELATÓRIO A4 — visão de impressão
+   ============================================================ */
+#relatorio{display:none;background:#5a6675;padding:22px 0}
+body.modo-relatorio #app{display:none}
+body.modo-relatorio #relatorio{display:block}
+body.modo-relatorio{background:#5a6675}
+
+.barra-rel{position:sticky;top:0;z-index:70;background:var(--azul);color:#fff;padding:10px 18px;
+  display:flex;gap:9px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.barra-rel .espaco{flex:1}
+.barra-rel .tit{font-weight:700;font-size:.92rem}
+
+.pagina{width:210mm;min-height:297mm;height:297mm;background:#fff;margin:0 auto 16px;
+  padding:14mm 15mm;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.35);
+  display:flex;flex-direction:column}
+.pagina .conteudo{flex:1;overflow:hidden}
+.p-cab{border-bottom:3px solid var(--laranja);padding-bottom:7px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px}
+.p-cab .logo{font-weight:800;color:var(--azul);font-size:1rem;letter-spacing:.5px;line-height:1.15}
+.p-cab .logo small{display:block;font-size:.56rem;font-weight:600;color:var(--txt-2);
+  letter-spacing:.4px;text-transform:uppercase}
+.p-cab img.logo-img{max-height:38px;display:none}
+.p-cab .tit{margin-left:auto;text-align:right;font-size:.72rem;color:var(--txt-2);line-height:1.35}
+.p-cab .tit b{display:block;color:var(--azul);font-size:.86rem}
+.p-pe{border-top:1px solid var(--linha);padding-top:6px;margin-top:9px;font-size:.6rem;
+  color:var(--txt-3);display:flex;gap:10px}
+.p-pe .espaco{flex:1}
+
+.capa{background:linear-gradient(160deg,var(--azul) 0%,var(--azul-3) 100%);color:#fff;
+  padding:0;justify-content:stretch}
+.capa .capa-in{flex:1;display:flex;flex-direction:column;padding:22mm 18mm}
+.capa .capa-logos{display:flex;align-items:center;gap:16px;margin-bottom:auto}
+.capa .capa-logos .lbm{font-size:1.35rem;font-weight:800;letter-spacing:1px;line-height:1.15}
+.capa .capa-logos .lbm small{display:block;font-size:.6rem;font-weight:600;opacity:.75;
+  letter-spacing:.8px;text-transform:uppercase}
+.capa .capa-logos img{max-height:54px;background:#fff;padding:6px 10px;border-radius:5px;display:none}
+.capa h1{color:#fff;font-size:2.05rem;line-height:1.16;margin:0 0 10px;letter-spacing:-.5px}
+.capa .linha-l{width:88px;height:5px;background:var(--laranja);margin-bottom:16px;border-radius:3px}
+.capa .emp{font-size:1.28rem;font-weight:700;margin-bottom:3px}
+.capa .sub{opacity:.82;font-size:.92rem;margin-bottom:22px}
+.capa .dados{display:grid;grid-template-columns:1fr 1fr;gap:9px 18px;
+  border-top:1px solid rgba(255,255,255,.2);padding-top:16px;font-size:.82rem}
+.capa .dados .k{opacity:.65;font-size:.64rem;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.capa .rod{margin-top:auto;border-top:1px solid rgba(255,255,255,.2);padding-top:14px;
+  font-size:.7rem;opacity:.8;line-height:1.6}
+
+.r-sec{font-size:.94rem;color:var(--azul);border-left:5px solid var(--laranja);
+  padding-left:9px;margin:0 0 10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.r-txt{font-size:.78rem;line-height:1.55;text-align:justify;margin-bottom:9px}
+.r-tab{width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:10px}
+.r-tab th{background:var(--azul);color:#fff;padding:5px 7px;font-size:.62rem;text-align:left}
+.r-tab td{padding:5px 7px;border-bottom:1px solid var(--linha)}
+.r-tab tr:nth-child(even) td{background:#fafbfd}
+.r-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}
+.r-kpi{border:1px solid var(--linha);border-top:4px solid var(--azul);border-radius:7px;
+  padding:9px;text-align:center}
+.r-kpi .n{font-size:1.55rem;font-weight:800;color:var(--azul);line-height:1}
+.r-kpi .l{font-size:.56rem;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-2);
+  font-weight:700;margin-top:4px}
+.r-kpi.critico{border-top-color:var(--critico)} .r-kpi.critico .n{color:var(--critico)}
+.r-kpi.alto{border-top-color:var(--alto)}       .r-kpi.alto .n{color:var(--alto)}
+.r-kpi.medio{border-top-color:var(--medio)}     .r-kpi.medio .n{color:var(--medio)}
+.r-kpi.baixo{border-top-color:var(--baixo)}     .r-kpi.baixo .n{color:var(--baixo)}
+
+.r-achado{border:1px solid var(--linha);border-left:5px solid var(--info);border-radius:7px;
+  padding:9px 11px;margin-bottom:9px;font-size:.72rem;page-break-inside:avoid;break-inside:avoid}
+.r-achado.n-critico{border-left-color:var(--critico)}
+.r-achado.n-alto{border-left-color:var(--alto)}
+.r-achado.n-medio{border-left-color:var(--medio)}
+.r-achado.n-baixo{border-left-color:var(--baixo)}
+.r-achado .cab{display:flex;gap:7px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.r-achado .cab .cod{font-weight:800;color:var(--azul);font-size:.82rem}
+.r-achado .cab .espaco{flex:1}
+.r-achado .cp{margin-top:4px;display:flex;gap:5px}
+.r-achado .cp .k{font-weight:700;color:var(--txt-2);font-size:.63rem;text-transform:uppercase;
+  letter-spacing:.4px;flex:0 0 74px;padding-top:1px}
+.r-achado .cp .v{flex:1}
+.r-achado .fotos-mini{display:flex;gap:5px;margin-top:6px}
+.r-achado .fotos-mini .fm{position:relative;width:70px;height:52px;border:1px solid var(--linha);
+  border-radius:4px;overflow:hidden;background:#0f1e33}
+.r-achado .fotos-mini .fm img{width:100%;height:100%;object-fit:cover}
+
+/* align-items:start impede que a foto paisagem estique até a altura da retrato
+   ao lado, o que deixava uma tarja branca sob a legenda. */
+.r-galeria{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+.r-foto{border:1px solid var(--linha);border-radius:7px;overflow:hidden;page-break-inside:avoid}
+/* Sem altura fixa: a razão de aspecto vem inline de cada foto, para que o
+   object-fit:contain nunca gere tarja lateral — só assim os pinos (posicionados
+   em % do contêiner) coincidem com o ponto marcado na imagem. */
+.r-foto .im{position:relative;background:#0f1e33;aspect-ratio:4/3}
+.r-foto .im img{width:100%;height:100%;object-fit:contain;display:block}
+.r-foto .lg{padding:5px 8px;font-size:.64rem;line-height:1.35}
+.r-foto .lg b{color:var(--azul)}
+.r-foto .pin{width:19px;height:19px;margin:-9.5px 0 0 -9.5px;font-size:.58rem;border-width:1.5px}
+
+.r-5w{border:1px solid var(--linha);border-radius:7px;margin-bottom:8px;overflow:hidden;
+  page-break-inside:avoid;font-size:.68rem}
+.r-5w .h{background:#f4f7fb;padding:6px 9px;display:flex;gap:8px;align-items:center;
+  border-bottom:1px solid var(--linha)}
+.r-5w .h .cod{font-weight:800;color:var(--azul);font-size:.78rem}
+.r-5w .h .espaco{flex:1}
+.r-5w .b{display:grid;grid-template-columns:repeat(2,1fr)}
+.r-5w .b>div{padding:5px 9px;border-bottom:1px solid #eef1f5}
+.r-5w .b>div:nth-child(odd){border-right:1px solid #eef1f5}
+.r-5w .b .k{font-size:.58rem;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-2);font-weight:800}
+
+.r-assin{margin-top:auto;padding-top:14px}
+.r-assin .linhas{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px}
+.r-assin .ln{border-top:1px solid var(--txt);padding-top:5px;font-size:.66rem;text-align:center;line-height:1.45}
+.r-assin .ln b{display:block;font-size:.74rem;color:var(--azul)}
+.semaforo{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+
+/* ---------- PRINT ---------- */
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff !important;margin:0;padding:0}
+  body.modo-relatorio{background:#fff}
+  #app,.barra-rel,.no-print,.toast,.modal{display:none !important}
+  #relatorio{display:block !important;background:#fff;padding:0}
+  .pagina{width:210mm;height:297mm;min-height:297mm;margin:0;padding:14mm 15mm;
+    box-shadow:none;overflow:hidden;page-break-after:always;break-after:page}
+  .pagina:last-child{page-break-after:auto;break-after:auto}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+}
+
+@media (max-width:640px){
+  .wrap{padding:16px 12px 80px}
+  .topbar{padding:9px 12px;gap:9px}
+  .topbar nav button{padding:6px 11px;font-size:.8rem}
+  .pagina{width:100%;min-height:auto;height:auto;padding:14px}
+  .r-kpis{grid-template-columns:repeat(2,1fr)}
+  .r-galeria,.r-5w .b{grid-template-columns:1fr}
+  .capa .dados{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<header class="topbar">
+  <div class="marca">
+    <!-- Logo LBM: asset não disponível no ambiente de geração; injetado pelo usuário via botão
+         "Logo LBM" (Ajustes) e persistido em localStorage. Fallback textual abaixo. -->
+    <img id="logoTop" alt="LBM BORATTI">
+    <div class="txt">LBM BORATTI<span class="sub">Inspeção SST</span></div>
+  </div>
+  <div class="espaco"></div>
+  <nav>
+    <button data-view="painel" class="ativo">Painel</button>
+    <button data-view="empresas">Empresas</button>
+    <button data-view="inspecoes">Inspeções</button>
+    <button data-view="ajustes">Ajustes</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <!-- ======================= PAINEL ======================= -->
+  <section class="view ativa" id="v-painel">
+    <div class="head-row">
+      <div>
+        <h1>Painel de Controle</h1>
+        <p class="small" style="margin:0">Carteira de clientes, inspeções e não-conformidades em aberto.</p>
+      </div>
+      <div class="espaco"></div>
+      <div class="acoes">
+        <button class="btn laranja" onclick="novaEmpresa()">+ Empresa</button>
+        <button class="btn" onclick="novaInspecao()">+ Inspeção</button>
+      </div>
+    </div>
+
+    <div class="kpis" id="kpisPainel"></div>
+
+    <div class="card">
+      <h2>⚠️ Não-conformidades críticas e vencidas</h2>
+      <div id="ncsUrgentes"></div>
+    </div>
+
+    <div class="card">
+      <h2>🕐 Inspeções recentes</h2>
+      <div id="inspRecentes"></div>
+    </div>
+  </section>
+
+  <!-- ======================= EMPRESAS ======================= -->
+  <section class="view" id="v-empresas">
+    <div class="head-row">
+      <div><h1>Empresas</h1><p class="small" style="margin:0">Cadastro da carteira de clientes.</p></div>
+      <div class="espaco"></div>
+      <div class="acoes">
+        <input type="text" id="buscaEmpresa" placeholder="Buscar…" style="width:190px" oninput="renderEmpresas()">
+        <button class="btn laranja" onclick="novaEmpresa()">+ Empresa</button>
+      </div>
+    </div>
+    <div id="listaEmpresas"></div>
+  </section>
+
+  <!-- ======================= INSPEÇÕES ======================= -->
+  <section class="view" id="v-inspecoes">
+    <div class="head-row">
+      <div><h1>Inspeções</h1><p class="small" style="margin:0">Todas as inspeções registradas.</p></div>
+      <div class="espaco"></div>
+      <div class="acoes">
+        <select id="filtroEmpresa" style="width:auto" onchange="renderInspecoes()"></select>
+        <button class="btn laranja" onclick="novaInspecao()">+ Inspeção</button>
+      </div>
+    </div>
+    <div id="listaInspecoes"></div>
+  </section>
+
+  <!-- ======================= EDITOR DE INSPEÇÃO ======================= -->
+  <section class="view" id="v-editor">
+    <div class="crumb" id="editorCrumb"></div>
+    <div class="head-row">
+      <div><h1 id="editorTitulo">Inspeção</h1><p class="small" style="margin:0" id="editorSub"></p></div>
+      <div class="espaco"></div>
+      <div class="acoes">
+        <button class="btn ghost" onclick="irPara('inspecoes')">← Voltar</button>
+        <button class="btn laranja" onclick="gerarRelatorio()">📄 Gerar relatório</button>
+      </div>
+    </div>
+
+    <div class="abas" id="abasEditor">
+      <button data-aba="dados" class="ativo">Dados gerais</button>
+      <button data-aba="fotos">Fotos &amp; análise</button>
+      <button data-aba="achados">Achados / NCs</button>
+      <button data-aba="epi">EPIs (NR-06)</button>
+      <button data-aba="plano">Plano 5W2H</button>
+    </div>
+
+    <div class="painel ativo" id="p-dados"></div>
+    <div class="painel" id="p-fotos"></div>
+    <div class="painel" id="p-achados"></div>
+    <div class="painel" id="p-epi"></div>
+    <div class="painel" id="p-plano"></div>
+  </section>
+
+  <!-- ======================= AJUSTES ======================= -->
+  <section class="view" id="v-ajustes">
+    <h1>Ajustes</h1>
+
+    <div class="card">
+      <h2>🏢 Identidade visual</h2>
+      <p class="small">O logotipo da LBM não vem embutido no arquivo. Carregue uma vez — ele fica salvo
+        no navegador e passa a aparecer no app e em todos os relatórios.</p>
+      <div class="acoes">
+        <button class="btn" onclick="carregarLogo('lbm')">Carregar logo LBM</button>
+        <button class="btn ghost" onclick="removerLogo('lbm')">Remover</button>
+      </div>
+      <div id="previewLogo" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>✍️ Responsável técnico</h2>
+      <p class="small">Aparece no bloco de assinatura de todo relatório.</p>
+      <div class="grid g2">
+        <label class="campo"><span>Nome</span><input type="text" id="rtNome"></label>
+        <label class="campo"><span>Registro profissional 1</span><input type="text" id="rtReg1"></label>
+        <label class="campo"><span>Registro profissional 2</span><input type="text" id="rtReg2"></label>
+        <label class="campo"><span>Contato</span><input type="text" id="rtContato"></label>
+      </div>
+      <button class="btn laranja" onclick="salvarRT()">Salvar</button>
+    </div>
+
+    <div class="card">
+      <h2>💾 Backup e transferência</h2>
+      <p class="small">Todos os dados ficam <b>apenas neste navegador</b>. Nada é enviado para servidor.
+        Faça backup antes de limpar o cache ou trocar de aparelho.</p>
+      <div class="acoes">
+        <button class="btn" onclick="exportarBackup()">⬇ Exportar backup (.json)</button>
+        <button class="btn ghost" onclick="document.getElementById('impBackup').click()">⬆ Importar backup</button>
+        <input type="file" id="impBackup" accept=".json" style="display:none" onchange="importarBackup(this)">
+        <button class="btn perigo" onclick="apagarTudo()">🗑 Apagar todos os dados</button>
+      </div>
+      <div id="infoArmazen" class="small" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>ℹ️ Sobre a análise de fotos</h2>
+      <div class="aviso info">
+        <b>O que este app faz sozinho, offline:</b> guia a leitura da foto por categoria de risco,
+        marca pontos numerados sobre a imagem, sugere o desvio com <b>NR + item</b>, calcula a
+        criticidade pela matriz Probabilidade × Consequência e gera a NC já classificada com prazo.
+      </div>
+      <div class="aviso">
+        <b>O que ele não faz:</b> não existe visão computacional embarcada em um HTML offline —
+        nenhum app local “olha” a foto e descobre o risco sozinho. Para leitura técnica automática
+        das imagens, use o botão <b>“Exportar pacote para análise por IA”</b> dentro da inspeção:
+        ele gera um JSON com o contexto. Anexe as fotos no chat junto com esse JSON e a análise
+        volta redigida, com NR, item e criticidade, pronta para colar de volta.
+      </div>
+    </div>
+  </section>
+
+</div><!-- /wrap -->
+</div><!-- /app -->
+
+<!-- ======================= RELATÓRIO A4 ======================= -->
+<div id="relatorio">
+  <div class="barra-rel no-print">
+    <span class="tit" id="relTitulo">Relatório</span>
+    <div class="espaco"></div>
+    <button class="btn laranja" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn ghost" onclick="fecharRelatorio()">← Voltar ao app</button>
+  </div>
+  <div id="relPaginas"></div>
+</div>
+
+<!-- ======================= MODAL ======================= -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-cab"><h3 id="modalTitulo"></h3><button class="x" onclick="fecharModal()">×</button></div>
+    <div class="modal-corpo" id="modalCorpo"></div>
+    <div class="modal-pe" id="modalPe"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   LBM BORATTI — App de Inspeção SST Multi-Empresa
+   Arquivo único, offline. Dados em localStorage; fotos em IndexedDB.
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------
+   1. CATÁLOGO NORMATIVO
+   Referência rápida — confirmar a numeração na redação vigente (gov.br/MTE)
+   antes de fechar o documento. Itens marcados com `conf:true` exigem
+   conferência explícita e saem no relatório com ⚠️.
+   ------------------------------------------------------------------------- */
+const CATEGORIAS = [
+  { id:'epi', nome:'EPI e proteção individual', nr:'NR-06', ic:'⛑️', checks:[
+    {t:'Trabalhador executando atividade sem o EPI obrigatório', nr:'NR-06', it:'6.6.1', p:4, c:4},
+    {t:'EPI danificado, deformado ou fora do prazo de validade em uso', nr:'NR-06', it:'6.6.1', p:3, c:3},
+    {t:'EPI sem Certificado de Aprovação (CA) válido', nr:'NR-06', it:'6.3', p:3, c:3},
+    {t:'EPI usado de forma incorreta (jugular solta, protetor fora do canal auditivo, óculos na testa)', nr:'NR-06', it:'6.7', p:4, c:2},
+    {t:'Ausência de fiscalização do uso e de registro de entrega de EPI', nr:'NR-06', it:'6.8', p:3, c:2},
+    {t:'EPI inadequado ao risco da atividade (tipo/classe incorretos)', nr:'NR-06', it:'6.6.1', p:3, c:3},
+  ]},
+  { id:'maquinas', nome:'Máquinas e equipamentos', nr:'NR-12', ic:'⚙️', checks:[
+    {t:'Zona de prensagem, corte ou cisalhamento sem proteção fixa', nr:'NR-12', it:'12.76', p:4, c:4},
+    {t:'Proteção móvel sem dispositivo de intertravamento', nr:'NR-12', it:'12.116', p:3, c:4},
+    {t:'Partes móveis expostas (polias, correias, engrenagens, eixos)', nr:'NR-12', it:'12.76', p:4, c:4},
+    {t:'Dispositivo de parada de emergência ausente, obstruído ou inoperante', nr:'NR-12', it:'12.38', p:3, c:4},
+    {t:'Ausência de procedimento de bloqueio e etiquetagem (LOTO) para manutenção', nr:'NR-12', it:'12.113', p:3, c:4, conf:true},
+    {t:'Distância de segurança insuficiente entre proteção e zona de perigo', nr:'NR-12', it:'Anexo I', p:3, c:4},
+    {t:'Entorno da máquina obstruído / espaço de circulação insuficiente', nr:'NR-12', it:'12.4', p:3, c:2, conf:true},
+    {t:'Máquina sem sinalização de risco e sem manual/procedimento no posto', nr:'NR-26', it:'26.2', p:3, c:2},
+  ]},
+  { id:'altura', nome:'Trabalho em altura', nr:'NR-35', ic:'🪜', checks:[
+    {t:'Atividade acima de 2 m sem cinto paraquedista e talabarte', nr:'NR-35', it:'Anexo III 3.1', p:4, c:4},
+    {t:'Ponto de ancoragem inexistente, improvisado ou sem resistência comprovada (mín. 15 kN)', nr:'NR-35', it:'Anexo III 4.1.2', p:4, c:4},
+    {t:'Guarda-corpo ausente ou incompleto em plataforma, laje ou mezanino', nr:'NBR 14718', it:'—', p:4, c:4},
+    {t:'Ausência de Análise de Risco / Permissão de Trabalho para a atividade em altura', nr:'NR-35', it:'35.3.1', p:3, c:4},
+    {t:'Escada portátil improvisada, sem sapata antiderrapante ou mal apoiada', nr:'NR-18', it:'—', p:4, c:3, conf:true},
+    {t:'Andaime sem travamento, rodapé ou guarda-corpo em plataforma de trabalho', nr:'NR-18', it:'—', p:4, c:4, conf:true},
+    {t:'Abertura em piso sem fechamento provisório ou proteção periférica', nr:'NR-18', it:'18.16', p:4, c:4},
+  ]},
+  { id:'eletrica', nome:'Instalações elétricas', nr:'NR-10', ic:'⚡', checks:[
+    {t:'Painel ou quadro elétrico aberto, sem porta ou sem tampa de proteção', nr:'NR-10', it:'10.2', p:4, c:4},
+    {t:'Intervenção em circuito energizado sem bloqueio e sinalização', nr:'NR-10', it:'10.2', p:3, c:4},
+    {t:'Emendas improvisadas, fiação exposta ou isolamento danificado', nr:'NR-10', it:'10.8', p:4, c:3},
+    {t:'Circuitos sem identificação no quadro de distribuição', nr:'NR-10', it:'10.2', p:3, c:2},
+    {t:'Extensões, adaptadores e réguas em sobrecarga ou fora de especificação', nr:'NR-10', it:'10.8', p:3, c:3},
+    {t:'Serviço elétrico executado por trabalhador não habilitado/autorizado', nr:'NR-10', it:'10.6', p:3, c:4},
+    {t:'Ausência de aterramento ou de dispositivo DR onde exigível', nr:'NR-10', it:'10.2', p:3, c:4, conf:true},
+  ]},
+  { id:'incendio', nome:'Prevenção e combate a incêndio', nr:'NR-23', ic:'🔥', checks:[
+    {t:'Extintor vencido, despressurizado ou com lacre rompido', nr:'NR-23', it:'23.5.3', p:3, c:3},
+    {t:'Extintor obstruído, sem sinalização ou fora da altura padronizada', nr:'NR-23', it:'23.5', p:3, c:3},
+    {t:'Saída de emergência obstruída, trancada ou com abertura no sentido incorreto', nr:'NR-23', it:'23.4', p:3, c:4},
+    {t:'Rota de fuga sem sinalização ou sem iluminação de emergência', nr:'NR-23', it:'23.4', p:3, c:3},
+    {t:'Armazenamento de líquidos inflamáveis sem bacia de contenção', nr:'NR-20', it:'—', p:3, c:4, conf:true},
+    {t:'Ausência de brigada de incêndio treinada / AVCB vencido', nr:'NR-23', it:'23.1', p:2, c:4, conf:true},
+  ]},
+  { id:'ergonomia', nome:'Ergonomia do posto', nr:'NR-17', ic:'🧍', checks:[
+    {t:'Levantamento e transporte manual de carga acima do recomendado, sem auxílio mecânico', nr:'NR-17', it:'17.3', p:4, c:2},
+    {t:'Postura forçada: flexão/torção de tronco, braços acima dos ombros, agachamento repetitivo', nr:'NR-17', it:'17.4', p:4, c:2},
+    {t:'Mobiliário inadequado — altura de bancada, assento ou plano de trabalho fora da faixa', nr:'NR-17', it:'17.4', p:4, c:2},
+    {t:'Ausência de pausas, ritmo intenso ou repetitividade elevada', nr:'NR-17', it:'17.7', p:3, c:2},
+    {t:'Iluminamento insuficiente ou ofuscamento no posto de trabalho', nr:'NR-17', it:'17.6', p:3, c:2},
+    {t:'Ausência de dispositivo de auxílio à movimentação (carrinho, talha, mesa elevatória)', nr:'NR-17', it:'17.3', p:3, c:3},
+    {t:'Posto exige trabalho em pé permanente sem alternância nem apoio', nr:'NR-17', it:'17.4', p:3, c:2},
+  ]},
+  { id:'ordem', nome:'Ordem, limpeza e circulação', nr:'NR-01', ic:'🧹', checks:[
+    {t:'Materiais obstruindo corredor de circulação ou rota de fuga', nr:'NR-23', it:'23.4', p:4, c:2},
+    {t:'Piso escorregadio por vazamento de óleo, água ou produto', nr:'NR-01', it:'1.6.3', p:4, c:3, conf:true},
+    {t:'Cabos, mangueiras ou tubulações cruzando área de circulação', nr:'NR-12', it:'12.4', p:4, c:2, conf:true},
+    {t:'Empilhamento instável ou acima da altura segura', nr:'NR-11', it:'11.3', p:3, c:3},
+    {t:'Resíduos, sucata ou sobras acumuladas no posto de trabalho', nr:'NR-24', it:'—', p:3, c:1, conf:true},
+    {t:'Piso danificado, com desnível ou buraco em área de circulação', nr:'NR-01', it:'1.6.3', p:3, c:2, conf:true},
+  ]},
+  { id:'sinalizacao', nome:'Sinalização de segurança', nr:'NR-26', ic:'🚧', checks:[
+    {t:'Ausência de sinalização de risco na área ou no equipamento', nr:'NR-26', it:'26.2', p:3, c:2},
+    {t:'Tubulação sem identificação por cor e sentido de fluxo', nr:'NR-26', it:'26.1', p:3, c:2},
+    {t:'Produto químico sem rotulagem preventiva no padrão GHS', nr:'NR-26', it:'26.2', p:3, c:4, conf:true},
+    {t:'Demarcação de piso apagada, incompleta ou inexistente', nr:'NR-26', it:'26.1', p:3, c:2},
+    {t:'Sinalização ilegível, encoberta ou em desacordo com a NBR 7195', nr:'NR-26', it:'26.1', p:2, c:2},
+  ]},
+  { id:'movimentacao', nome:'Movimentação e armazenagem', nr:'NR-11', ic:'🏗️', checks:[
+    {t:'Operador de empilhadeira sem habilitação, sem cinto ou sem crachá de autorização', nr:'NR-11', it:'11.2', p:3, c:4},
+    {t:'Cabo de aço, cinta ou corrente com fios rompidos, deformação ou sem identificação de carga', nr:'NR-11', it:'11.1', p:3, c:4},
+    {t:'Circulação de pedestres sem segregação da rota de equipamentos motorizados', nr:'NR-11', it:'11.2', p:4, c:4, conf:true},
+    {t:'Carga içada com trabalhadores sob a projeção', nr:'NR-11', it:'11.1', p:3, c:4},
+    {t:'Ausência de check-list diário do equipamento de movimentação', nr:'NR-11', it:'11.2', p:3, c:2, conf:true},
+    {t:'Armazenagem sem indicação de carga máxima da estrutura porta-palete', nr:'NR-11', it:'11.3', p:3, c:3},
+  ]},
+  { id:'quimico', nome:'Agentes químicos e insalubridade', nr:'NR-15', ic:'🧪', checks:[
+    {t:'Manipulação de produto químico sem exaustão ou ventilação local', nr:'NR-15', it:'Anexo 11', p:3, c:4},
+    {t:'FISPQ não disponível ou inacessível no local de uso', nr:'NR-26', it:'26.2', p:3, c:3, conf:true},
+    {t:'Armazenamento de produtos incompatíveis no mesmo ambiente', nr:'NR-15', it:'Anexo 11', p:3, c:4, conf:true},
+    {t:'Ausência de chuveiro de emergência e lava-olhos na área', nr:'NR-15', it:'Anexo 11', p:3, c:4, conf:true},
+    {t:'Exposição a ruído acima do limite de tolerância sem medida de controle', nr:'NR-15', it:'Anexo 1', p:4, c:3},
+    {t:'Exposição a calor sem avaliação de IBUTG ou sem regime de pausas', nr:'NR-15', it:'Anexo 3', p:3, c:3},
+    {t:'Transvase de produto químico sem contenção secundária', nr:'NR-15', it:'Anexo 11', p:3, c:3, conf:true},
+  ]},
+  { id:'caldeira', nome:'Caldeiras e vasos de pressão', nr:'NR-13', ic:'🔧', checks:[
+    {t:'Válvula de segurança sem inspeção periódica ou com lacre violado', nr:'NR-13', it:'13.4.2', p:3, c:4},
+    {t:'Prontuário ou registro de inspeção ausente/desatualizado', nr:'NR-13', it:'13.4', p:3, c:3},
+    {t:'Manômetro danificado, ilegível ou sem faixa de operação demarcada', nr:'NR-13', it:'13.4', p:3, c:3},
+    {t:'Operador sem treinamento de segurança na operação de caldeira', nr:'NR-13', it:'13.4', p:3, c:4, conf:true},
+    {t:'Vaso de pressão sem placa de identificação ou categoria não definida', nr:'NR-13', it:'13.5', p:3, c:3},
+  ]},
+  { id:'confinado', nome:'Espaço confinado', nr:'NR-33', ic:'🕳️', checks:[
+    {t:'Entrada sem Permissão de Entrada e Trabalho (PET) emitida', nr:'NR-33', it:'33.4', p:4, c:4},
+    {t:'Ausência de monitoramento contínuo da atmosfera', nr:'NR-33', it:'33.5', p:4, c:4},
+    {t:'Trabalho sem vigia posicionado no exterior', nr:'NR-33', it:'33.5', p:4, c:4},
+    {t:'Espaço confinado não identificado nem sinalizado', nr:'NR-33', it:'33.3', p:3, c:4},
+    {t:'Ausência de equipamento de resgate e plano de emergência específico', nr:'NR-33', it:'33.5', p:3, c:4},
+  ]},
+  { id:'obra', nome:'Construção civil', nr:'NR-18', ic:'🏢', checks:[
+    {t:'Ausência de proteção periférica em laje, vão ou perímetro da edificação', nr:'NR-18', it:'18.16', p:4, c:4},
+    {t:'Escavação sem escoramento, talude ou afastamento de sobrecarga', nr:'NR-18', it:'18.6', p:3, c:4},
+    {t:'Ausência de proteção contra queda de materiais (plataforma, tela, bandeja)', nr:'NR-18', it:'18.9', p:3, c:4, conf:true},
+    {t:'Armadura de espera sem proteção de ponta (cogumelo)', nr:'NR-18', it:'18.9', p:4, c:3, conf:true},
+    {t:'Ausência de comunicação prévia da obra ao órgão regional', nr:'NR-18', it:'18.3', p:2, c:2},
+  ]},
+  { id:'gestao', nome:'Gestão e documentação (GRO/PGR)', nr:'NR-01', ic:'📋', checks:[
+    {t:'Risco identificado não consta no inventário de riscos do PGR', nr:'NR-01', it:'1.6.3', p:3, c:2},
+    {t:'Ausência de registro de treinamento/capacitação para a atividade', nr:'NR-01', it:'1.7', p:3, c:3, conf:true},
+    {t:'Plano de ação sem responsável definido, prazo ou evidência de conclusão', nr:'NR-01', it:'1.7', p:3, c:2},
+    {t:'Ausência de mecanismo de consulta e participação dos trabalhadores', nr:'NR-01', it:'1.5', p:2, c:2},
+    {t:'Medida de controle implantada sem verificação de eficácia', nr:'NR-01', it:'1.7', p:3, c:2},
+    {t:'Ordem de serviço de segurança não emitida ou sem ciência do trabalhador', nr:'NR-01', it:'1.7', p:3, c:2, conf:true},
+  ]},
+];
+const CAT_MAP = Object.fromEntries(CATEGORIAS.map(c=>[c.id,c]));
+
+const NIVEIS = {
+  critico:{rot:'CRÍTICO', cor:'#c0392b', dias:0,  prazoTxt:'Imediato / interdição'},
+  alto:   {rot:'ALTO',    cor:'#d35400', dias:7,  prazoTxt:'até 7 dias'},
+  medio:  {rot:'MÉDIO',   cor:'#956d00', dias:30, prazoTxt:'até 30 dias'},
+  baixo:  {rot:'BAIXO',   cor:'#1e8449', dias:90, prazoTxt:'até 90 dias'},
+};
+const P_ROT = ['','Improvável','Remota','Possível','Provável','Frequente'];
+const C_ROT = ['','Baixa','Média','Alta','Crítica'];
+
+function nivelPorScore(s){
+  if(s>=16) return 'critico';
+  if(s>=10) return 'alto';
+  if(s>=5)  return 'medio';
+  return 'baixo';
+}
+function scoreDe(a){ return (Number(a.p)||1) * (Number(a.c)||1); }
+function nivelDe(a){ return nivelPorScore(scoreDe(a)); }
+
+/* -------------------------------------------------------------------------
+   2. ARMAZENAMENTO
+   ------------------------------------------------------------------------- */
+const CHAVE = 'lbm_insp_sst_v1';
+let S = { empresas:[], inspecoes:[], cfg:{}, seq:1 };
+
+const RT_PADRAO = {
+  nome:'Marcelo Luis Boratti Melo',
+  reg1:'Engenheiro de Segurança do Trabalho — CREA-SP: 5069572947',
+  reg2:'Fisioterapeuta e Ergonomista — CREFITO 3/209468-F',
+  contato:'marengseg@gmail.com | (16) 99338-8989',
+};
+
+/* Fotos em IndexedDB — com fallback em memória se o navegador bloquear
+   IndexedDB em file:// (alguns contextos restritos). */
+const Fotos = (()=>{
+  const mem = new Map();
+  let usandoMem = false, dbp = null;
+  function abrir(){
+    if(dbp) return dbp;
+    dbp = new Promise((res,rej)=>{
+      let r;
+      try{ r = indexedDB.open('lbm_insp_fotos', 1); }catch(e){ return rej(e); }
+      r.onupgradeneeded = ()=>{ r.result.createObjectStore('fotos'); };
+      r.onsuccess = ()=>res(r.result);
+      r.onerror   = ()=>rej(r.error);
+    }).catch(e=>{ usandoMem = true; return null; });
+    return dbp;
+  }
+  async function tx(modo, fn){
+    const db = await abrir();
+    if(!db){ usandoMem = true; return null; }
+    return new Promise((res,rej)=>{
+      const t = db.transaction('fotos', modo);
+      const st = t.objectStore('fotos');
+      let out;
+      try{ out = fn(st); }catch(e){ return rej(e); }
+      t.oncomplete = ()=>res(out && out.result !== undefined ? out.result : out);
+      t.onerror = ()=>rej(t.error);
+    });
+  }
+  return {
+    get memoria(){ return usandoMem; },
+    async set(k,v){
+      mem.set(k,v);
+      try{ await tx('readwrite', st=>st.put(v,k)); }catch(e){ usandoMem = true; }
+    },
+    async get(k){
+      if(mem.has(k)) return mem.get(k);
+      try{
+        const v = await tx('readonly', st=>st.get(k));
+        if(v) mem.set(k,v);
+        return v || null;
+      }catch(e){ usandoMem = true; return null; }
+    },
+    async del(k){
+      mem.delete(k);
+      try{ await tx('readwrite', st=>st.delete(k)); }catch(e){}
+    },
+    async todas(){
+      const db = await abrir();
+      if(!db) return Object.fromEntries(mem);
+      const chaves = await new Promise((res)=>{
+        const t = db.transaction('fotos','readonly');
+        const rq = t.objectStore('fotos').getAllKeys();
+        rq.onsuccess = ()=>res(rq.result || []);
+        rq.onerror = ()=>res([]);
+      });
+      const out = {};
+      for(const k of chaves) out[k] = await this.get(k);
+      for(const [k,v] of mem) if(!(k in out)) out[k] = v;
+      return out;
+    },
+    async limpar(){
+      mem.clear();
+      try{ await tx('readwrite', st=>st.clear()); }catch(e){}
+    }
+  };
+})();
+
+function salvar(){
+  try{
+    localStorage.setItem(CHAVE, JSON.stringify(S));
+  }catch(e){
+    toast('⚠️ Falha ao salvar — armazenamento cheio. Exporte um backup.', 5000);
+  }
+}
+function carregar(){
+  try{
+    const raw = localStorage.getItem(CHAVE);
+    if(raw) S = Object.assign({empresas:[],inspecoes:[],cfg:{},seq:1}, JSON.parse(raw));
+  }catch(e){ console.warn('Estado ilegível, iniciando vazio.', e); }
+  if(!S.cfg) S.cfg = {};
+  if(!S.cfg.rt) S.cfg.rt = Object.assign({}, RT_PADRAO);
+  if(!S.seq) S.seq = 1;
+}
+function uid(pfx){ return pfx + '_' + (S.seq++).toString(36) + '_' + Math.random().toString(36).slice(2,7); }
+
+/* -------------------------------------------------------------------------
+   3. UTILITÁRIOS
+   ------------------------------------------------------------------------- */
+const $  = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function hojeISO(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function fmtData(iso){
+  if(!iso) return '—';
+  const [a,m,d] = iso.split('-');
+  return (d&&m&&a) ? `${d}/${m}/${a}` : iso;
+}
+function somaDias(iso, dias){
+  const d = new Date((iso||hojeISO())+'T12:00:00');
+  d.setDate(d.getDate()+Number(dias||0));
+  return d.toISOString().slice(0,10);
+}
+function semaforo(prazoISO){
+  if(!prazoISO) return {cor:'#8a94a3', rot:'SEM PRAZO'};
+  const hoje = new Date(hojeISO()+'T12:00:00');
+  const p = new Date(prazoISO+'T12:00:00');
+  const dif = Math.round((p-hoje)/86400000);
+  if(dif < 0)  return {cor:'#c0392b', rot:'VENCIDO', dias:dif};
+  if(dif <= 7) return {cor:'#e67e22', rot:'URGENTE', dias:dif};
+  if(dif <= 30)return {cor:'#f0c000', rot:'PRÓXIMO', dias:dif};
+  return {cor:'#1e8449', rot:'NO PRAZO', dias:dif};
+}
+let toastT;
+function toast(msg, ms){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('ver');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('ver'), ms||2600);
+}
+function baixar(nome, conteudo, tipo){
+  const b = new Blob([conteudo], {type: tipo||'application/json;charset=utf-8'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = nome; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(u); a.remove(); }, 400);
+}
+
+/* Modal genérico */
+function abrirModal(titulo, corpoHTML, botoes){
+  $('#modalTitulo').textContent = titulo;
+  $('#modalCorpo').innerHTML = corpoHTML;
+  $('#modalPe').innerHTML = (botoes||[]).map((b,i)=>
+    `<button class="btn ${b.cls||''}" data-mb="${i}">${esc(b.rot)}</button>`).join('');
+  $$('#modalPe [data-mb]').forEach(el=>{
+    el.onclick = ()=> (botoes[Number(el.dataset.mb)].fn || fecharModal)();
+  });
+  $('#modal').classList.add('aberto');
+}
+function fecharModal(){ $('#modal').classList.remove('aberto'); }
+$('#modal').addEventListener('click', e=>{ if(e.target.id==='modal') fecharModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') fecharModal(); });
+
+/* -------------------------------------------------------------------------
+   4. NAVEGAÇÃO
+   ------------------------------------------------------------------------- */
+let inspAtual = null;
+
+function irPara(v){
+  $$('.view').forEach(el=>el.classList.remove('ativa'));
+  const alvo = $('#v-'+v);
+  if(alvo) alvo.classList.add('ativa');
+  $$('.topbar nav button').forEach(b=>b.classList.toggle('ativo', b.dataset.view===v));
+  window.scrollTo(0,0);
+  if(v==='painel')    renderPainel();
+  if(v==='empresas')  renderEmpresas();
+  if(v==='inspecoes') renderInspecoes();
+  if(v==='ajustes')   renderAjustes();
+}
+$$('.topbar nav button').forEach(b=> b.onclick = ()=> irPara(b.dataset.view));
+$$('#abasEditor button').forEach(b=> b.onclick = ()=>{
+  $$('#abasEditor button').forEach(x=>x.classList.remove('ativo'));
+  b.classList.add('ativo');
+  $$('#v-editor .painel').forEach(p=>p.classList.remove('ativo'));
+  $('#p-'+b.dataset.aba).classList.add('ativo');
+  renderAba(b.dataset.aba);
+});
+
+/* -------------------------------------------------------------------------
+   5. PAINEL
+   ------------------------------------------------------------------------- */
+function achadosObs(insp){ return (insp.achados||[]).filter(a=>a.origem==='OBSERVADO'); }
+function contaNivel(lista, n){ return lista.filter(a=>nivelDe(a)===n).length; }
+
+function renderPainel(){
+  const todos = S.inspecoes.flatMap(i=>achadosObs(i).map(a=>({a, i})));
+  const abertos = todos.filter(x=>x.a.status!=='concluido');
+  const vencidos = abertos.filter(x=>x.a.prazo && semaforo(x.a.prazo).rot==='VENCIDO');
+  const criticos = abertos.filter(x=>nivelDe(x.a)==='critico');
+
+  $('#kpisPainel').innerHTML = `
+    <div class="kpi"><div class="n">${S.empresas.length}</div><div class="l">Empresas</div></div>
+    <div class="kpi laranja"><div class="n">${S.inspecoes.length}</div><div class="l">Inspeções</div></div>
+    <div class="kpi"><div class="n">${abertos.length}</div><div class="l">NCs em aberto</div></div>
+    <div class="kpi critico"><div class="n">${criticos.length}</div><div class="l">Críticas</div></div>
+    <div class="kpi alto"><div class="n">${vencidos.length}</div><div class="l">Prazo vencido</div></div>`;
+
+  const urg = [...criticos, ...vencidos.filter(v=>!criticos.includes(v))]
+    .sort((x,y)=> scoreDe(y.a)-scoreDe(x.a)).slice(0,12);
+  $('#ncsUrgentes').innerHTML = urg.length ? `<div class="lista">${urg.map(({a,i})=>{
+    const n = nivelDe(a), sem = semaforo(a.prazo);
+    return `<div class="item" onclick="abrirInspecao('${i.id}','achados')">
+      <div class="ic" style="background:${NIVEIS[n].cor}">${esc(a.cod.replace('NC-',''))}</div>
+      <div class="corpo">
+        <div class="t">${esc(a.descricao||'(sem descrição)').slice(0,110)}</div>
+        <div class="s">${esc(empresaDe(i)?.nome||'—')} · ${esc(i.area||'—')} · ${esc(a.nr||'')} ${esc(a.item||'')}</div>
+      </div>
+      <div class="dir">
+        <span class="badge badge-${n}">${NIVEIS[n].rot}</span>
+        <span class="badge" style="background:#fff;border:1px solid ${sem.cor};color:${sem.cor}">
+          <span class="semaforo" style="background:${sem.cor}"></span>${sem.rot}</span>
+      </div></div>`;
+  }).join('')}</div>` : vazio('✅','Nenhuma NC crítica ou vencida em aberto.');
+
+  const rec = [...S.inspecoes].sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,8);
+  $('#inspRecentes').innerHTML = rec.length ? `<div class="lista">${rec.map(i=>itemInspecao(i)).join('')}</div>`
+    : vazio('📋','Nenhuma inspeção ainda. Cadastre uma empresa e crie a primeira.');
+}
+function vazio(em, txt){ return `<div class="vazio"><span class="em">${em}</span>${esc(txt)}</div>`; }
+
+/* -------------------------------------------------------------------------
+   6. EMPRESAS
+   ------------------------------------------------------------------------- */
+function empresaDe(insp){ return S.empresas.find(e=>e.id===insp.empresaId); }
+
+function renderEmpresas(){
+  const q = ($('#buscaEmpresa').value||'').toLowerCase().trim();
+  const lista = S.empresas.filter(e=>!q || (e.nome+' '+(e.cnpj||'')+' '+(e.cnae||'')).toLowerCase().includes(q));
+  $('#listaEmpresas').innerHTML = lista.length ? `<div class="lista">${lista.map(e=>{
+    const ins = S.inspecoes.filter(i=>i.empresaId===e.id);
+    const ncs = ins.flatMap(i=>achadosObs(i)).filter(a=>a.status!=='concluido');
+    return `<div class="item" onclick="editarEmpresa('${e.id}')">
+      <div class="ic">${esc((e.nome||'?').trim().charAt(0).toUpperCase())}</div>
+      <div class="corpo">
+        <div class="t">${esc(e.nome)}</div>
+        <div class="s">${e.cnpj?esc(e.cnpj)+' · ':''}${e.cnae?'CNAE '+esc(e.cnae)+' · ':''}GR ${esc(e.gr||'—')}
+          · ${ins.length} inspeç${ins.length===1?'ão':'ões'}</div>
+      </div>
+      <div class="dir">
+        ${ncs.length?`<span class="badge badge-nc">${ncs.length} NC aberta${ncs.length>1?'s':''}</span>`
+                    :`<span class="badge badge-baixo">Sem NC aberta</span>`}
+        <button class="btn mini ghost" onclick="event.stopPropagation();novaInspecao('${e.id}')">+ Inspeção</button>
+      </div></div>`;
+  }).join('')}</div>` : vazio('🏢', q?'Nenhuma empresa encontrada.':'Nenhuma empresa cadastrada.');
+}
+
+function formEmpresa(e){
+  e = e||{};
+  return `
+  <div class="grid g2">
+    <label class="campo"><span>Razão social *</span><input type="text" id="fe_nome" value="${esc(e.nome||'')}"></label>
+    <label class="campo"><span>CNPJ</span><input type="text" id="fe_cnpj" value="${esc(e.cnpj||'')}" placeholder="00.000.000/0001-00"></label>
+  </div>
+  <label class="campo"><span>Endereço</span><input type="text" id="fe_end" value="${esc(e.endereco||'')}"></label>
+  <div class="grid g3">
+    <label class="campo"><span>CNAE</span><input type="text" id="fe_cnae" value="${esc(e.cnae||'')}"></label>
+    <label class="campo"><span>Grau de risco</span>
+      <select id="fe_gr">${[1,2,3,4].map(g=>`<option value="${g}" ${String(e.gr)===String(g)?'selected':''}>GR ${g}</option>`).join('')}</select></label>
+    <label class="campo"><span>Nº de trabalhadores</span><input type="number" id="fe_trab" value="${esc(e.trabalhadores||'')}" min="0"></label>
+  </div>
+  <div class="grid g2">
+    <label class="campo"><span>Responsável na empresa</span><input type="text" id="fe_resp" value="${esc(e.responsavel||'')}"></label>
+    <label class="campo"><span>Contato</span><input type="text" id="fe_contato" value="${esc(e.contato||'')}"></label>
+  </div>`;
+}
+function lerFormEmpresa(){
+  return {
+    nome:$('#fe_nome').value.trim(), cnpj:$('#fe_cnpj').value.trim(),
+    endereco:$('#fe_end').value.trim(), cnae:$('#fe_cnae').value.trim(),
+    gr:$('#fe_gr').value, trabalhadores:$('#fe_trab').value,
+    responsavel:$('#fe_resp').value.trim(), contato:$('#fe_contato').value.trim(),
+  };
+}
+function novaEmpresa(){
+  abrirModal('Nova empresa', formEmpresa({}), [
+    {rot:'Cancelar', cls:'ghost', fn:fecharModal},
+    {rot:'Salvar', cls:'laranja', fn:()=>{
+      const d = lerFormEmpresa();
+      if(!d.nome) return toast('Informe a razão social.');
+      S.empresas.push(Object.assign({id:uid('emp'), criadoEm:hojeISO()}, d));
+      salvar(); fecharModal(); irPara('empresas'); toast('Empresa cadastrada.');
+    }}
+  ]);
+}
+function editarEmpresa(id){
+  const e = S.empresas.find(x=>x.id===id); if(!e) return;
+  const ins = S.inspecoes.filter(i=>i.empresaId===id)
+    .sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  const extra = `<div class="sep"></div><h3>Inspeções desta empresa (${ins.length})</h3>` +
+    (ins.length ? `<div class="lista">${ins.map(i=>itemInspecao(i,true)).join('')}</div>`
+                : `<p class="small">Nenhuma inspeção registrada.</p>`);
+  abrirModal('Editar empresa', formEmpresa(e)+extra, [
+    {rot:'Excluir', cls:'perigo', fn:()=>{
+      const n = S.inspecoes.filter(i=>i.empresaId===id).length;
+      if(!confirm(`Excluir "${e.nome}"${n?` e suas ${n} inspeções`:''}? Esta ação não pode ser desfeita.`)) return;
+      S.inspecoes.filter(i=>i.empresaId===id).forEach(i=>(i.fotos||[]).forEach(f=>Fotos.del(f.id)));
+      S.inspecoes = S.inspecoes.filter(i=>i.empresaId!==id);
+      S.empresas = S.empresas.filter(x=>x.id!==id);
+      salvar(); fecharModal(); irPara('empresas'); toast('Empresa excluída.');
+    }},
+    {rot:'Cancelar', cls:'ghost', fn:fecharModal},
+    {rot:'Salvar', cls:'laranja', fn:()=>{
+      Object.assign(e, lerFormEmpresa());
+      if(!e.nome) return toast('Informe a razão social.');
+      salvar(); fecharModal(); renderEmpresas(); toast('Empresa atualizada.');
+    }}
+  ]);
+}
+
+/* -------------------------------------------------------------------------
+   7. INSPEÇÕES
+   ------------------------------------------------------------------------- */
+const TIPOS = ['Rotineira','Programada','Pós-acidente','Não programada'];
+const MODOS = [
+  {id:'geral',   rot:'Inspeção geral SST'},
+  {id:'modular', rot:'Modular por NR'},
+  {id:'walk',    rot:'Walkthrough (pré-AET)'},
+  {id:'bbs',     rot:'Comportamental (BBS)'},
+];
+
+function itemInspecao(i, compacto){
+  const emp = empresaDe(i);
+  const obs = achadosObs(i);
+  const nc = obs.filter(a=>a.status!=='concluido').length;
+  const cr = contaNivel(obs.filter(a=>a.status!=='concluido'),'critico');
+  const modelos = (i.achados||[]).filter(a=>a.origem==='MODELO').length;
+  return `<div class="item" onclick="abrirInspecao('${i.id}')">
+    <div class="ic" style="background:${cr?'var(--critico)':'var(--azul)'}">${esc((i.data||'').slice(8,10)||'?')}</div>
+    <div class="corpo">
+      <div class="t">${esc(i.area||'Área não informada')}</div>
+      <div class="s">${compacto?'':esc(emp?.nome||'—')+' · '}${fmtData(i.data)} · ${esc(i.tipo||'—')}
+        · ${(i.fotos||[]).length} foto${(i.fotos||[]).length===1?'':'s'}</div>
+    </div>
+    <div class="dir">
+      ${modelos?`<span class="badge badge-modelo">${modelos} modelo</span>`:''}
+      ${nc?`<span class="badge badge-nc">${nc} NC</span>`:`<span class="badge badge-baixo">0 NC</span>`}
+      ${cr?`<span class="badge badge-critico">${cr} crítica${cr>1?'s':''}</span>`:''}
+    </div></div>`;
+}
+
+function renderInspecoes(){
+  const sel = $('#filtroEmpresa');
+  const atual = sel.value;
+  sel.innerHTML = `<option value="">Todas as empresas</option>` +
+    S.empresas.map(e=>`<option value="${e.id}">${esc(e.nome)}</option>`).join('');
+  sel.value = atual || '';
+  const lista = S.inspecoes
+    .filter(i=>!sel.value || i.empresaId===sel.value)
+    .sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  $('#listaInspecoes').innerHTML = lista.length
+    ? `<div class="lista">${lista.map(i=>itemInspecao(i)).join('')}</div>`
+    : vazio('📋','Nenhuma inspeção. Clique em "+ Inspeção" para começar.');
+}
+
+function novaInspecao(empId){
+  if(!S.empresas.length){
+    return abrirModal('Cadastre uma empresa primeiro',
+      '<p>Toda inspeção pertence a uma empresa. Cadastre o cliente antes de iniciar o levantamento de campo.</p>',
+      [{rot:'Cancelar',cls:'ghost',fn:fecharModal},{rot:'Cadastrar empresa',cls:'laranja',fn:()=>{fecharModal();novaEmpresa();}}]);
+  }
+  abrirModal('Nova inspeção', `
+    <label class="campo"><span>Empresa *</span><select id="fi_emp">
+      ${S.empresas.map(e=>`<option value="${e.id}" ${e.id===empId?'selected':''}>${esc(e.nome)}</option>`).join('')}
+    </select></label>
+    <div class="grid g2">
+      <label class="campo"><span>Área / setor inspecionado *</span>
+        <input type="text" id="fi_area" placeholder="Ex.: Linha de produção 2 — Prensas"></label>
+      <label class="campo"><span>Data</span><input type="date" id="fi_data" value="${hojeISO()}"></label>
+    </div>
+    <div class="grid g2">
+      <label class="campo"><span>Tipo</span><select id="fi_tipo">
+        ${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select></label>
+      <label class="campo"><span>Modo</span><select id="fi_modo">
+        ${MODOS.map(m=>`<option value="${m.id}">${m.rot}</option>`).join('')}</select></label>
+    </div>
+    <label class="campo"><span>Inspetor / responsável técnico</span>
+      <input type="text" id="fi_insp" value="${esc(S.cfg.rt.nome||'')}"></label>
+  `, [
+    {rot:'Cancelar', cls:'ghost', fn:fecharModal},
+    {rot:'Criar', cls:'laranja', fn:()=>{
+      const area = $('#fi_area').value.trim();
+      if(!area) return toast('Informe a área/setor inspecionado.');
+      const i = {
+        id:uid('insp'), empresaId:$('#fi_emp').value, area,
+        data:$('#fi_data').value || hojeISO(), tipo:$('#fi_tipo').value, modo:$('#fi_modo').value,
+        inspetor:$('#fi_insp').value.trim(), horario:'', metodo:'Observação direta em campo com registro fotográfico',
+        resumo:'', conclusao:'', achados:[], fotos:[], epis:[], criadoEm:hojeISO(),
+      };
+      S.inspecoes.push(i); salvar(); fecharModal(); abrirInspecao(i.id); toast('Inspeção criada.');
+    }}
+  ]);
+}
+
+function abrirInspecao(id, aba){
+  inspAtual = S.inspecoes.find(i=>i.id===id);
+  if(!inspAtual) return;
+  /* Normaliza registros vindos de backups antigos ou parcialmente gravados. */
+  ['achados','fotos','epis'].forEach(k=>{ if(!Array.isArray(inspAtual[k])) inspAtual[k] = []; });
+  inspAtual.fotos.forEach(f=>{ if(!Array.isArray(f.pins)) f.pins = []; });
+  inspAtual.achados.forEach(a=>{ if(!Array.isArray(a.fotos)) a.fotos = []; });
+  fecharModal();
+  irPara('editor');
+  const emp = empresaDe(inspAtual);
+  $('#editorCrumb').innerHTML = `<b>${esc(emp?.nome||'—')}</b> › Inspeção de ${fmtData(inspAtual.data)}`;
+  $('#editorTitulo').textContent = inspAtual.area || 'Inspeção';
+  $('#editorSub').textContent =
+    `${inspAtual.tipo||'—'} · ${(MODOS.find(m=>m.id===inspAtual.modo)||{}).rot||'—'} · ${(inspAtual.fotos||[]).length} foto(s) · ${(inspAtual.achados||[]).length} achado(s)`;
+  const alvo = aba || 'dados';
+  $$('#abasEditor button').forEach(b=>b.classList.toggle('ativo', b.dataset.aba===alvo));
+  $$('#v-editor .painel').forEach(p=>p.classList.remove('ativo'));
+  $('#p-'+alvo).classList.add('ativo');
+  renderAba(alvo);
+}
+function renderAba(a){
+  if(a==='dados')   renderDados();
+  if(a==='fotos')   renderFotos();
+  if(a==='achados') renderAchados();
+  if(a==='epi')     renderEPI();
+  if(a==='plano')   renderPlano();
+}
+function atualizarSub(){
+  if(!inspAtual) return;
+  $('#editorSub').textContent =
+    `${inspAtual.tipo||'—'} · ${(MODOS.find(m=>m.id===inspAtual.modo)||{}).rot||'—'} · ${(inspAtual.fotos||[]).length} foto(s) · ${(inspAtual.achados||[]).length} achado(s)`;
+}
+
+/* ---------- Aba: dados gerais ---------- */
+function renderDados(){
+  const i = inspAtual, emp = empresaDe(i)||{};
+  $('#p-dados').innerHTML = `
+  <div class="card">
+    <h2>📌 Identificação da inspeção</h2>
+    <div class="grid g2">
+      <label class="campo"><span>Empresa</span><select id="d_emp">
+        ${S.empresas.map(e=>`<option value="${e.id}" ${e.id===i.empresaId?'selected':''}>${esc(e.nome)}</option>`).join('')}
+      </select></label>
+      <label class="campo"><span>Área / setor</span><input type="text" id="d_area" value="${esc(i.area||'')}"></label>
+    </div>
+    <div class="grid g4">
+      <label class="campo"><span>Data</span><input type="date" id="d_data" value="${esc(i.data||'')}"></label>
+      <label class="campo"><span>Horário</span><input type="text" id="d_hora" value="${esc(i.horario||'')}" placeholder="08h30 às 11h00"></label>
+      <label class="campo"><span>Tipo</span><select id="d_tipo">
+        ${TIPOS.map(t=>`<option ${t===i.tipo?'selected':''}>${t}</option>`).join('')}</select></label>
+      <label class="campo"><span>Modo</span><select id="d_modo">
+        ${MODOS.map(m=>`<option value="${m.id}" ${m.id===i.modo?'selected':''}>${m.rot}</option>`).join('')}</select></label>
+    </div>
+    <div class="grid g2">
+      <label class="campo"><span>Inspetor</span><input type="text" id="d_insp" value="${esc(i.inspetor||'')}"></label>
+      <label class="campo"><span>Método</span><input type="text" id="d_metodo" value="${esc(i.metodo||'')}"></label>
+    </div>
+    <label class="campo"><span>Acompanhantes / participantes da inspeção</span>
+      <input type="text" id="d_acomp" value="${esc(i.acompanhantes||'')}" placeholder="Ex.: encarregado do setor, cipeiro"></label>
+    <p class="small">Dados da empresa (CNPJ, CNAE, GR, nº de trabalhadores) vêm do cadastro:
+      <b>${esc(emp.cnpj||'CNPJ não informado')}</b> · CNAE ${esc(emp.cnae||'—')} · GR ${esc(emp.gr||'—')} ·
+      ${esc(emp.trabalhadores||'—')} trabalhador(es).
+      <a href="#" onclick="editarEmpresa('${emp.id}');return false">Editar cadastro</a></p>
+  </div>
+
+  <div class="card">
+    <h2>📝 Sumário executivo</h2>
+    <p class="small">Síntese do que foi verificado. Deixe em branco para o app gerar automaticamente
+      a partir dos achados no momento de emitir o relatório.</p>
+    <textarea id="d_resumo" rows="5" placeholder="Ex.: Inspeção de rotina no setor de prensas, com foco em NR-12 e NR-06…">${esc(i.resumo||'')}</textarea>
+  </div>
+
+  <div class="card">
+    <h2>⚖️ Parecer técnico e conclusão</h2>
+    <textarea id="d_conclusao" rows="6" placeholder="Parecer conclusivo. Em branco, o app gera a partir do quadro de achados.">${esc(i.conclusao||'')}</textarea>
+  </div>
+
+  <div class="acoes">
+    <button class="btn laranja" onclick="salvarDados()">Salvar dados</button>
+    <button class="btn ghost" onclick="exportarPacoteIA()">🤖 Exportar pacote para análise por IA</button>
+    <button class="btn perigo" onclick="excluirInspecao()">Excluir inspeção</button>
+  </div>`;
+}
+function salvarDados(){
+  const i = inspAtual;
+  i.empresaId=$('#d_emp').value; i.area=$('#d_area').value.trim(); i.data=$('#d_data').value;
+  i.horario=$('#d_hora').value.trim(); i.tipo=$('#d_tipo').value; i.modo=$('#d_modo').value;
+  i.inspetor=$('#d_insp').value.trim(); i.metodo=$('#d_metodo').value.trim();
+  i.acompanhantes=$('#d_acomp').value.trim();
+  i.resumo=$('#d_resumo').value.trim(); i.conclusao=$('#d_conclusao').value.trim();
+  salvar(); atualizarSub(); toast('Dados salvos.');
+}
+function excluirInspecao(){
+  if(!confirm('Excluir esta inspeção, suas fotos e achados? Esta ação não pode ser desfeita.')) return;
+  (inspAtual.fotos||[]).forEach(f=>Fotos.del(f.id));
+  S.inspecoes = S.inspecoes.filter(x=>x.id!==inspAtual.id);
+  inspAtual = null; salvar(); irPara('inspecoes'); toast('Inspeção excluída.');
+}
+
+/* -------------------------------------------------------------------------
+   8. FOTOS E ANÁLISE
+   ------------------------------------------------------------------------- */
+const MAX_LADO = 1600, QUALIDADE = 0.82;
+
+function comprimir(file){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader();
+    fr.onerror = ()=>rej(new Error('Falha ao ler o arquivo.'));
+    fr.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=>rej(new Error('Arquivo de imagem inválido.'));
+      img.onload = ()=>{
+        let {width:w, height:h} = img;
+        const f = Math.min(1, MAX_LADO/Math.max(w,h));
+        w = Math.round(w*f); h = Math.round(h*f);
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        const cx = cv.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0,0,w,h);
+        cx.drawImage(img, 0, 0, w, h);
+        res({dataUrl: cv.toDataURL('image/jpeg', QUALIDADE), w, h});
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+function renderFotos(){
+  const i = inspAtual;
+  const nFotos = (i.fotos||[]).length;
+  $('#p-fotos').innerHTML = `
+  <div class="card">
+    <h2>📷 Registro fotográfico</h2>
+    <p class="small">As imagens são reduzidas para 1600 px e guardadas <b>neste navegador</b>.
+      No celular, "Tirar foto" abre a câmera direto.</p>
+    <div class="acoes">
+      <button class="btn laranja" onclick="$('#inpFoto').click()">➕ Adicionar fotos</button>
+      <button class="btn" onclick="$('#inpCam').click()">📸 Tirar foto</button>
+      ${nFotos?`<button class="btn ghost" onclick="exportarPacoteIA()">🤖 Exportar pacote para análise por IA</button>`:''}
+      <span class="small">${nFotos} foto(s)${Fotos.memoria?' · <b style="color:#c0392b">armazenamento volátil</b>':''}</span>
+    </div>
+    <input type="file" id="inpFoto" accept="image/*" multiple style="display:none" onchange="addFotos(this)">
+    <input type="file" id="inpCam" accept="image/*" capture="environment" style="display:none" onchange="addFotos(this)">
+  </div>
+  ${nFotos ? `<div class="galeria" id="galeriaFotos"></div>`
+           : vazio('📷','Nenhuma foto. Adicione as imagens de campo para iniciar a análise.')}`;
+  if(nFotos) pintarGaleria();
+}
+
+async function addFotos(inp){
+  const arquivos = Array.from(inp.files||[]);
+  inp.value = '';
+  if(!arquivos.length) return;
+  toast(`Processando ${arquivos.length} imagem(ns)…`, 4000);
+  for(const f of arquivos){
+    if(!/^image\//.test(f.type)) continue;
+    try{
+      const {dataUrl,w,h} = await comprimir(f);
+      const id = uid('foto');
+      await Fotos.set(id, dataUrl);
+      inspAtual.fotos.push({id, nome:f.name, legenda:'', categoria:'', pins:[], w, h, em:hojeISO()});
+    }catch(e){ console.warn('Falha na foto', f.name, e); toast('Falha ao processar '+f.name); }
+  }
+  salvar(); renderFotos(); atualizarSub(); toast('Fotos adicionadas.');
+}
+
+async function pintarGaleria(){
+  const g = $('#galeriaFotos'); if(!g) return;
+  g.innerHTML = inspAtual.fotos.map((f,idx)=>`
+    <div class="foto-card">
+      <div class="foto-wrap" id="fw_${f.id}" style="aspect-ratio:${(f.w||4)}/${(f.h||3)}">
+        <img data-fid="${f.id}" alt="Registro ${idx+1}"></div>
+      <div class="meta">
+        <div class="leg"><b>Foto ${String(idx+1).padStart(2,'0')}</b> — ${esc(f.legenda||'sem legenda')}</div>
+        <div class="sub">${f.categoria?esc((CAT_MAP[f.categoria]||{}).nome||f.categoria):'sem categoria'}
+          · ${(f.pins||[]).length} marcação(ões)</div>
+        <div class="acoes" style="margin-top:9px">
+          <button class="btn mini laranja" onclick="analisarFoto('${f.id}')">🔍 Analisar</button>
+          <button class="btn mini ghost" onclick="moverFoto('${f.id}',-1)">↑</button>
+          <button class="btn mini ghost" onclick="moverFoto('${f.id}',1)">↓</button>
+          <button class="btn mini perigo" onclick="excluirFoto('${f.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+  for(const f of inspAtual.fotos){
+    const url = await Fotos.get(f.id);
+    const img = g.querySelector(`img[data-fid="${f.id}"]`);
+    if(img) img.src = url || '';
+    const wrap = document.getElementById('fw_'+f.id);
+    if(wrap) pintarPins(wrap, f);
+  }
+}
+function pintarPins(wrap, f){
+  wrap.querySelectorAll('.pin').forEach(p=>p.remove());
+  (f.pins||[]).forEach(pin=>{
+    const a = (inspAtual.achados||[]).find(x=>x.id===pin.achadoId);
+    const n = a ? nivelDe(a) : 'info';
+    const el = document.createElement('div');
+    el.className = 'pin n-'+n;
+    el.style.left = pin.x+'%'; el.style.top = pin.y+'%';
+    el.textContent = a ? a.cod.replace('NC-','').replace(/^0+/,'') : '?';
+    el.title = a ? `${a.cod} — ${a.descricao||''}` : 'Marcação sem NC vinculada';
+    wrap.appendChild(el);
+  });
+}
+function moverFoto(id, dir){
+  const arr = inspAtual.fotos, i = arr.findIndex(f=>f.id===id);
+  const j = i+dir; if(i<0||j<0||j>=arr.length) return;
+  [arr[i],arr[j]] = [arr[j],arr[i]];
+  salvar(); pintarGaleria();
+}
+function excluirFoto(id){
+  if(!confirm('Excluir esta foto? As marcações vinculadas a ela serão perdidas.')) return;
+  Fotos.del(id);
+  inspAtual.fotos = inspAtual.fotos.filter(f=>f.id!==id);
+  (inspAtual.achados||[]).forEach(a=>{ a.fotos = (a.fotos||[]).filter(x=>x!==id); });
+  salvar(); renderFotos(); atualizarSub();
+}
+
+/* ---------- Analisador guiado de foto ---------- */
+let fotoAnalise = null;
+
+async function analisarFoto(id){
+  const f = inspAtual.fotos.find(x=>x.id===id); if(!f) return;
+  fotoAnalise = f;
+  const url = await Fotos.get(id);
+  abrirModal('Análise da imagem', `
+    <div class="foto-wrap pinavel" id="anImg"
+         style="aspect-ratio:${(f.w||4)}/${(f.h||3)};max-height:46vh;margin:0 auto 12px;border-radius:8px;
+                width:min(100%, calc(46vh * ${(f.w||4)} / ${(f.h||3)}))">
+      <img src="${url||''}" alt="Foto em análise">
+    </div>
+    <p class="small" style="margin-top:-6px">Clique sobre a imagem para marcar o ponto do desvio.
+      Cada marcação vira um pino numerado e fica vinculada à NC gerada.</p>
+    <div class="grid g2">
+      <label class="campo"><span>Legenda técnica da foto</span>
+        <input type="text" id="an_leg" value="${esc(f.legenda||'')}" placeholder="Ex.: Prensa excêntrica P-04, vista frontal"></label>
+      <label class="campo"><span>Categoria de risco predominante</span>
+        <select id="an_cat" onchange="montarChecklist()">
+          <option value="">— selecione para abrir o roteiro —</option>
+          ${CATEGORIAS.map(c=>`<option value="${c.id}" ${c.id===f.categoria?'selected':''}>${c.ic} ${c.nome} (${c.nr})</option>`).join('')}
+        </select></label>
+    </div>
+    <div id="an_checklist"></div>
+    <div id="an_pins"></div>
+  `, [
+    {rot:'Fechar', cls:'ghost', fn:()=>{ salvarLegendaFoto(); fecharModal(); renderFotos(); }},
+    {rot:'Gerar NCs marcadas', cls:'laranja', fn:gerarNCsDaFoto}
+  ]);
+  montarChecklist();
+  montarPinsModal();
+  $('#anImg').onclick = e=>{
+    if(e.target.classList.contains('pin')) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    pinPendente = {
+      x: +(((e.clientX-r.left)/r.width)*100).toFixed(2),
+      y: +(((e.clientY-r.top)/r.height)*100).toFixed(2)
+    };
+    marcarPinPendente();
+  };
+}
+let pinPendente = null;
+function marcarPinPendente(){
+  const w = $('#anImg'); if(!w) return;
+  w.querySelectorAll('.pin.pend').forEach(p=>p.remove());
+  if(!pinPendente) return;
+  const el = document.createElement('div');
+  el.className = 'pin pend'; el.style.left = pinPendente.x+'%'; el.style.top = pinPendente.y+'%';
+  el.style.background = 'var(--laranja)'; el.textContent = '+';
+  el.title = 'Ponto marcado — será vinculado à próxima NC gerada';
+  w.appendChild(el);
+  toast('Ponto marcado. Selecione os desvios e clique em "Gerar NCs marcadas".');
+}
+function salvarLegendaFoto(){
+  if(!fotoAnalise) return;
+  const l = $('#an_leg'), c = $('#an_cat');
+  if(l) fotoAnalise.legenda = l.value.trim();
+  if(c) fotoAnalise.categoria = c.value;
+  salvar();
+}
+function montarChecklist(){
+  const cid = $('#an_cat') ? $('#an_cat').value : '';
+  const box = $('#an_checklist'); if(!box) return;
+  if(!cid){ box.innerHTML = `<div class="aviso info">Escolha a categoria de risco: o roteiro de verificação
+    daquela NR abre abaixo, já com item normativo e criticidade sugerida.</div>`; return; }
+  const cat = CAT_MAP[cid];
+  box.innerHTML = `
+    <details class="chk-grupo" open>
+      <summary>${cat.ic} Roteiro ${cat.nr} — ${esc(cat.nome)}<span class="cnt">marque o que a foto evidencia</span></summary>
+      ${cat.checks.map((k,ix)=>{
+        const n = nivelPorScore(k.p*k.c);
+        return `<label class="chk-item">
+          <input type="checkbox" data-chk="${ix}">
+          <div class="d">
+            <div class="txt">${esc(k.t)}</div>
+            <div class="nr">${esc(k.nr)} ${esc(k.it)}${k.conf?' <span title="Confirmar numeração na redação vigente">⚠️</span>':''}
+              · P${k.p}×C${k.c} = <b>${k.p*k.c}</b>
+              <span class="badge badge-${n}" style="transform:scale(.88)">${NIVEIS[n].rot}</span></div>
+          </div></label>`;
+      }).join('')}
+    </details>
+    <div class="chk-item" style="border:1px solid var(--linha);border-radius:9px;margin-top:8px">
+      <input type="checkbox" id="chk_livre">
+      <div class="d" style="width:100%">
+        <div class="txt"><b>Outro desvio</b> — descrever manualmente</div>
+        <input type="text" id="chk_livre_txt" placeholder="Descreva o desvio observado nesta foto"
+          style="margin-top:6px" oninput="document.getElementById('chk_livre').checked = !!this.value.trim()">
+      </div>
+    </div>`;
+}
+function montarPinsModal(){
+  const box = $('#an_pins'); if(!box || !fotoAnalise) return;
+  const pins = fotoAnalise.pins||[];
+  box.innerHTML = pins.length ? `<div class="sep"></div><h3>Marcações nesta foto (${pins.length})</h3>` +
+    pins.map((p,ix)=>{
+      const a = (inspAtual.achados||[]).find(x=>x.id===p.achadoId);
+      return `<div class="chk-item" style="border:1px solid var(--linha);border-radius:8px;margin-bottom:6px">
+        <div class="d"><div class="txt">${a?`<b>${esc(a.cod)}</b> — ${esc(a.descricao||'')}`:'Marcação sem NC'}</div>
+        <div class="nr">${a?esc(a.nr+' '+a.item):''}</div></div>
+        <button class="btn mini perigo" onclick="removerPin(${ix})">Remover</button>
+      </div>`;
+    }).join('') : '';
+  const w = $('#anImg');
+  if(w){ pintarPins(w, fotoAnalise); if(pinPendente) marcarPinPendente(); }
+}
+function removerPin(ix){
+  fotoAnalise.pins.splice(ix,1); salvar(); montarPinsModal();
+}
+
+function gerarNCsDaFoto(){
+  salvarLegendaFoto();
+  const cid = $('#an_cat').value;
+  const marcados = [];
+  if(cid){
+    $$('#an_checklist [data-chk]').forEach(el=>{
+      if(el.checked) marcados.push(CAT_MAP[cid].checks[Number(el.dataset.chk)]);
+    });
+  }
+  const livre = $('#chk_livre_txt');
+  if(livre && livre.value.trim()){
+    marcados.push({t:livre.value.trim(), nr:(CAT_MAP[cid]||{}).nr||'NR-01', it:'—', p:3, c:3, conf:true});
+  }
+  if(!marcados.length) return toast('Marque ao menos um desvio no roteiro.');
+
+  marcados.forEach((k,ix)=>{
+    const a = novoAchado({
+      origem:'OBSERVADO', tipo:'CI', categoria:cid,
+      descricao:k.t, nr:k.nr, item:k.it, p:k.p, c:k.c, conf:!!k.conf,
+      fotos:[fotoAnalise.id],
+    });
+    if(pinPendente && ix===0){
+      fotoAnalise.pins = fotoAnalise.pins||[];
+      fotoAnalise.pins.push({x:pinPendente.x, y:pinPendente.y, achadoId:a.id});
+      pinPendente = null;
+    }
+  });
+  renumerar(); salvar();
+  toast(`${marcados.length} NC gerada(s) a partir da foto.`);
+  fecharModal(); renderFotos();
+}
+
+/* -------------------------------------------------------------------------
+   9. ACHADOS / NCs
+   ------------------------------------------------------------------------- */
+function novoAchado(d){
+  const a = Object.assign({
+    id:uid('nc'), cod:'NC-000', origem:'MODELO', tipo:'CI', categoria:'',
+    descricao:'', nr:'NR-01', item:'1.6.3', p:3, c:3, conf:false,
+    causa:'', acao:'', responsavel:'', local:'', custo:'', porque:'',
+    prazo:'', status:'aberto', fotos:[],
+  }, d||{});
+  if(!a.prazo) a.prazo = somaDias(inspAtual.data, NIVEIS[nivelDe(a)].dias);
+  if(!a.local) a.local = inspAtual.area||'';
+  inspAtual.achados.push(a);
+  return a;
+}
+/* Renumera NC-001… em ordem de criticidade (crítico primeiro), conforme padrão LBM. */
+function renumerar(){
+  const ordem = {critico:0, alto:1, medio:2, baixo:3};
+  inspAtual.achados.sort((x,y)=>{
+    const d = ordem[nivelDe(x)] - ordem[nivelDe(y)];
+    if(d) return d;
+    return scoreDe(y) - scoreDe(x);
+  });
+  inspAtual.achados.forEach((a,ix)=>{ a.cod = 'NC-' + String(ix+1).padStart(3,'0'); });
+}
+
+function renderAchados(){
+  const i = inspAtual;
+  const obs = achadosObs(i), mod = (i.achados||[]).filter(a=>a.origem==='MODELO');
+  const abertosObs = obs.filter(a=>a.status!=='concluido');
+  const ais = obs.filter(a=>a.tipo==='AI').length, cis = obs.filter(a=>a.tipo==='CI').length;
+
+  $('#p-achados').innerHTML = `
+  <div class="kpis">
+    <div class="kpi"><div class="n">${obs.length}</div><div class="l">NCs constatadas</div></div>
+    <div class="kpi critico"><div class="n">${contaNivel(obs,'critico')}</div><div class="l">Críticas</div></div>
+    <div class="kpi alto"><div class="n">${contaNivel(obs,'alto')}</div><div class="l">Altas</div></div>
+    <div class="kpi medio"><div class="n">${contaNivel(obs,'medio')}</div><div class="l">Médias</div></div>
+    <div class="kpi baixo"><div class="n">${contaNivel(obs,'baixo')}</div><div class="l">Baixas</div></div>
+  </div>
+  ${i.modo==='bbs' ? `<div class="card"><h3>Análise comportamental (BBS)</h3>
+    <p class="small">Atos inseguros: <b>${ais}</b> · Condições inseguras: <b>${cis}</b>
+    · Proporção de atos: <b>${obs.length?Math.round(ais/obs.length*100):0}%</b>.
+    Predominância de atos indica lacuna de treinamento e supervisão; de condições, lacuna de engenharia
+    e manutenção (NR-01, item 1.5 — participação dos trabalhadores).</p></div>`:''}
+  ${mod.length ? `<div class="aviso"><b>${mod.length} item(ns) modelo</b> aguardando constatação em campo.
+    Itens marcados como <span class="badge badge-modelo">MODELO</span> <b>não entram</b> nos indicadores
+    nem no total de NCs do relatório — confirme-os para que passem a contar.</div>`:''}
+
+  <div class="card">
+    <div class="acoes">
+      <button class="btn laranja" onclick="editarAchado()">➕ Novo achado</button>
+      <button class="btn" onclick="abrirBiblioteca()">📚 Inserir itens modelo do setor</button>
+      <span class="small">${abertosObs.length} em aberto · ${obs.length-abertosObs.length} concluída(s)</span>
+    </div>
+  </div>
+
+  <div id="listaAchados">${
+    (i.achados||[]).length ? i.achados.map(a=>cardAchado(a)).join('')
+      : vazio('🔍','Nenhum achado. Gere NCs pela análise das fotos ou cadastre manualmente.')
+  }</div>`;
+}
+
+function cardAchado(a){
+  const n = nivelDe(a), sem = semaforo(a.prazo);
+  const cat = CAT_MAP[a.categoria];
+  return `<div class="achado n-${n} ${a.origem==='MODELO'?'modelo':''}">
+    <div class="cab">
+      <span class="cod">${esc(a.cod)}</span>
+      <span class="badge badge-${a.tipo==='AI'?'ai':'ci'}">${a.tipo==='AI'?'ATO INSEGURO':'CONDIÇÃO INSEGURA'}</span>
+      <span class="badge badge-${n}">${NIVEIS[n].rot} · ${scoreDe(a)}</span>
+      ${a.origem==='OBSERVADO'
+        ? `<span class="badge badge-obs">OBSERVADO</span>`
+        : `<span class="badge badge-modelo">MODELO — editar</span>`}
+      ${a.status==='concluido'?`<span class="badge badge-baixo">CONCLUÍDA</span>`:''}
+      <span class="espaco"></span>
+      <span class="badge" style="background:#fff;border:1px solid ${sem.cor};color:${sem.cor}">
+        <span class="semaforo" style="background:${sem.cor}"></span>${sem.rot}</span>
+    </div>
+    <div style="font-size:.93rem;margin-bottom:7px">${esc(a.descricao||'(sem descrição)')}</div>
+    <div class="small">
+      <b>${esc(a.nr)} ${esc(a.item)}</b>${a.conf?' <span title="Confirmar numeração na redação vigente">⚠️ confirmar item</span>':''}
+      ${cat?` · ${cat.ic} ${esc(cat.nome)}`:''}
+      · Prazo: <b>${fmtData(a.prazo)}</b> (${NIVEIS[n].prazoTxt})
+      ${(a.fotos||[]).length?` · 📷 ${a.fotos.length} foto(s)`:''}
+      ${a.responsavel?` · Resp.: ${esc(a.responsavel)}`:''}
+    </div>
+    <div class="acoes" style="margin-top:10px">
+      <button class="btn mini" onclick="editarAchado('${a.id}')">Editar</button>
+      ${a.origem==='MODELO'
+        ? `<button class="btn mini laranja" onclick="confirmarAchado('${a.id}')">✓ Confirmar como observado</button>`
+        : `<button class="btn mini ghost" onclick="alternarStatus('${a.id}')">${a.status==='concluido'?'Reabrir':'Marcar concluída'}</button>`}
+      <button class="btn mini perigo" onclick="excluirAchado('${a.id}')">Excluir</button>
+    </div>
+  </div>`;
+}
+function confirmarAchado(id){
+  const a = inspAtual.achados.find(x=>x.id===id); if(!a) return;
+  a.origem = 'OBSERVADO'; renumerar(); salvar(); renderAchados();
+  toast('Achado confirmado — agora conta nos indicadores.');
+}
+function alternarStatus(id){
+  const a = inspAtual.achados.find(x=>x.id===id); if(!a) return;
+  a.status = a.status==='concluido' ? 'aberto' : 'concluido';
+  salvar(); renderAchados();
+}
+function excluirAchado(id){
+  if(!confirm('Excluir este achado?')) return;
+  inspAtual.achados = inspAtual.achados.filter(x=>x.id!==id);
+  inspAtual.fotos.forEach(f=>{ f.pins = (f.pins||[]).filter(p=>p.achadoId!==id); });
+  renumerar(); salvar(); renderAchados(); atualizarSub();
+}
+
+function matrizHTML(p,c){
+  let h = '<table class="matriz"><tr><th>C \\ P</th>' +
+    [1,2,3,4,5].map(x=>`<th>${x}<br><span style="font-weight:400">${P_ROT[x].slice(0,4)}</span></th>`).join('') + '</tr>';
+  for(let cc=1; cc<=4; cc++){
+    h += `<tr><th>${cc}<br><span style="font-weight:400">${C_ROT[cc]}</span></th>`;
+    for(let pp=1; pp<=5; pp++){
+      const s = pp*cc, n = nivelPorScore(s);
+      h += `<td class="s-${n} ${(pp==p&&cc==c)?'sel':''}" data-p="${pp}" data-c="${cc}"
+             onclick="selMatriz(${pp},${cc})" title="${P_ROT[pp]} × ${C_ROT[cc]} = ${s} (${NIVEIS[n].rot})">${s}</td>`;
+    }
+    h += '</tr>';
+  }
+  return h + '</table>';
+}
+function selMatriz(p,c){
+  $('#fa_p').value = p; $('#fa_c').value = c;
+  $$('#fa_matriz .matriz td').forEach(td=>td.classList.toggle('sel',
+    Number(td.dataset.p)===p && Number(td.dataset.c)===c));
+  const n = nivelPorScore(p*c);
+  $('#fa_nivel').innerHTML =
+    `<span class="badge badge-${n}">${NIVEIS[n].rot} · score ${p*c}</span>
+     <span class="small">Prazo normativo: ${NIVEIS[n].prazoTxt}</span>`;
+  const pz = $('#fa_prazo');
+  if(pz && !pz.dataset.tocado) pz.value = somaDias(inspAtual.data, NIVEIS[n].dias);
+}
+
+function editarAchado(id){
+  const a = id ? inspAtual.achados.find(x=>x.id===id) : null;
+  const d = a || {tipo:'CI', origem:'OBSERVADO', p:3, c:3, nr:'NR-01', item:'1.6.3',
+                  local:inspAtual.area||'', prazo:''};
+  const n = nivelPorScore((d.p||3)*(d.c||3));
+  abrirModal(a?`Editar ${a.cod}`:'Novo achado', `
+    <div class="grid g3">
+      <label class="campo"><span>Natureza</span><select id="fa_tipo">
+        <option value="CI" ${d.tipo==='CI'?'selected':''}>Condição insegura</option>
+        <option value="AI" ${d.tipo==='AI'?'selected':''}>Ato inseguro</option></select></label>
+      <label class="campo"><span>Rastreabilidade</span><select id="fa_origem">
+        <option value="OBSERVADO" ${d.origem==='OBSERVADO'?'selected':''}>Observado em campo</option>
+        <option value="MODELO" ${d.origem==='MODELO'?'selected':''}>Item modelo (a confirmar)</option></select></label>
+      <label class="campo"><span>Categoria</span><select id="fa_cat">
+        <option value="">—</option>
+        ${CATEGORIAS.map(c=>`<option value="${c.id}" ${c.id===d.categoria?'selected':''}>${c.ic} ${c.nome}</option>`).join('')}
+      </select></label>
+    </div>
+    <label class="campo"><span>Descrição do achado *</span>
+      <textarea id="fa_desc" rows="3" placeholder="Descreva objetivamente o que foi constatado">${esc(d.descricao||'')}</textarea></label>
+    <div class="grid g3">
+      <label class="campo"><span>Norma</span><input type="text" id="fa_nr" value="${esc(d.nr||'')}" list="dl_nr">
+        <datalist id="dl_nr">${[...new Set(CATEGORIAS.map(c=>c.nr))].map(x=>`<option>${x}</option>`).join('')}</datalist></label>
+      <label class="campo"><span>Item</span><input type="text" id="fa_item" value="${esc(d.item||'')}"></label>
+      <label class="campo"><span>Confirmar numeração?</span><select id="fa_conf">
+        <option value="0" ${!d.conf?'selected':''}>Item conferido</option>
+        <option value="1" ${d.conf?'selected':''}>⚠️ Confirmar na redação vigente</option></select></label>
+    </div>
+    <div class="sep"></div>
+    <h3>Criticidade — matriz Probabilidade × Consequência</h3>
+    <p class="small">Clique na célula. O prazo é preenchido conforme o nível.</p>
+    <div id="fa_matriz">${matrizHTML(d.p||3, d.c||3)}</div>
+    <input type="hidden" id="fa_p" value="${d.p||3}"><input type="hidden" id="fa_c" value="${d.c||3}">
+    <div id="fa_nivel" style="margin:9px 0">
+      <span class="badge badge-${n}">${NIVEIS[n].rot} · score ${(d.p||3)*(d.c||3)}</span>
+      <span class="small">Prazo normativo: ${NIVEIS[n].prazoTxt}</span></div>
+    <div class="sep"></div>
+    <h3>Plano de ação 5W2H</h3>
+    <label class="campo"><span>Why — por que corrigir (consequência esperada)</span>
+      <input type="text" id="fa_porque" value="${esc(d.porque||'')}"></label>
+    <label class="campo"><span>How — ação corretiva</span>
+      <textarea id="fa_acao" rows="2">${esc(d.acao||'')}</textarea></label>
+    <div class="grid g3">
+      <label class="campo"><span>Who — responsável</span><input type="text" id="fa_resp" value="${esc(d.responsavel||'')}"></label>
+      <label class="campo"><span>When — prazo</span>
+        <input type="date" id="fa_prazo" value="${esc(d.prazo||somaDias(inspAtual.data,NIVEIS[n].dias))}"
+          oninput="this.dataset.tocado=1"></label>
+      <label class="campo"><span>How much — custo estimado</span><input type="text" id="fa_custo" value="${esc(d.custo||'')}"></label>
+    </div>
+    <div class="grid g2">
+      <label class="campo"><span>Where — local exato</span><input type="text" id="fa_local" value="${esc(d.local||'')}"></label>
+      <label class="campo"><span>Causa raiz</span><input type="text" id="fa_causa" value="${esc(d.causa||'')}"></label>
+    </div>
+    <label class="campo"><span>Fotos vinculadas</span>
+      <select id="fa_fotos" multiple size="${Math.min(5,Math.max(2,inspAtual.fotos.length))}">
+        ${inspAtual.fotos.map((f,ix)=>`<option value="${f.id}"
+          ${(d.fotos||[]).includes(f.id)?'selected':''}>Foto ${String(ix+1).padStart(2,'0')} — ${esc(f.legenda||f.nome||'sem legenda')}</option>`).join('')
+          || '<option disabled>Nenhuma foto nesta inspeção</option>'}
+      </select></label>
+  `, [
+    {rot:'Cancelar', cls:'ghost', fn:fecharModal},
+    {rot:a?'Salvar':'Adicionar', cls:'laranja', fn:()=>{
+      const desc = $('#fa_desc').value.trim();
+      if(!desc) return toast('Descreva o achado.');
+      const dados = {
+        tipo:$('#fa_tipo').value, origem:$('#fa_origem').value, categoria:$('#fa_cat').value,
+        descricao:desc, nr:$('#fa_nr').value.trim(), item:$('#fa_item').value.trim(),
+        conf:$('#fa_conf').value==='1',
+        p:Number($('#fa_p').value), c:Number($('#fa_c').value),
+        porque:$('#fa_porque').value.trim(), acao:$('#fa_acao').value.trim(),
+        responsavel:$('#fa_resp').value.trim(), prazo:$('#fa_prazo').value,
+        custo:$('#fa_custo').value.trim(), local:$('#fa_local').value.trim(),
+        causa:$('#fa_causa').value.trim(),
+        fotos:Array.from($('#fa_fotos').selectedOptions||[]).map(o=>o.value),
+      };
+      if(a) Object.assign(a, dados); else novoAchado(dados);
+      renumerar(); salvar(); fecharModal(); renderAchados(); atualizarSub();
+      toast(a?'Achado atualizado.':'Achado adicionado.');
+    }}
+  ]);
+}
+
+/* Biblioteca de itens modelo — acelera o preenchimento em campo */
+function abrirBiblioteca(){
+  abrirModal('Inserir itens modelo', `
+    <div class="aviso">Itens típicos entram rotulados como <span class="badge badge-modelo">MODELO</span>
+      e <b>não contam</b> como não-conformidade até serem confirmados. Use para agilizar a inspeção,
+      confirmando em campo apenas o que de fato observar.</div>
+    ${CATEGORIAS.map(c=>`
+      <details class="chk-grupo">
+        <summary>${c.ic} ${esc(c.nome)} <span class="cnt">${c.nr} · ${c.checks.length} itens</span></summary>
+        ${c.checks.map((k,ix)=>{
+          const n = nivelPorScore(k.p*k.c);
+          return `<label class="chk-item">
+            <input type="checkbox" data-bib="${c.id}:${ix}">
+            <div class="d"><div class="txt">${esc(k.t)}</div>
+              <div class="nr">${esc(k.nr)} ${esc(k.it)}${k.conf?' ⚠️':''}
+                <span class="badge badge-${n}" style="transform:scale(.88)">${NIVEIS[n].rot}</span></div></div>
+          </label>`;
+        }).join('')}
+      </details>`).join('')}
+  `, [
+    {rot:'Cancelar', cls:'ghost', fn:fecharModal},
+    {rot:'Inserir selecionados', cls:'laranja', fn:()=>{
+      const sels = $$('[data-bib]').filter(el=>el.checked);
+      if(!sels.length) return toast('Selecione ao menos um item.');
+      sels.forEach(el=>{
+        const [cid,ix] = el.dataset.bib.split(':');
+        const k = CAT_MAP[cid].checks[Number(ix)];
+        novoAchado({origem:'MODELO', tipo:'CI', categoria:cid, descricao:k.t,
+                    nr:k.nr, item:k.it, p:k.p, c:k.c, conf:!!k.conf});
+      });
+      renumerar(); salvar(); fecharModal(); renderAchados(); atualizarSub();
+      toast(`${sels.length} item(ns) modelo inserido(s).`);
+    }}
+  ]);
+}
+
+/* -------------------------------------------------------------------------
+   10. EPIs (NR-06)
+   ------------------------------------------------------------------------- */
+const EPIS_SUG = ['Capacete de segurança','Óculos de proteção','Protetor auricular','Protetor facial',
+  'Luva de segurança','Calçado de segurança','Máscara/respirador','Cinto paraquedista',
+  'Talabarte duplo','Avental','Perneira','Mangote','Colete refletivo'];
+
+function renderEPI(){
+  const i = inspAtual;
+  if(!i.epis) i.epis = [];
+  $('#p-epi').innerHTML = `
+  <div class="card">
+    <h2>⛑️ Verificação de EPIs — NR-06</h2>
+    <p class="small">CA válido (item 6.3), fornecimento adequado (6.6.1), uso correto (6.7)
+      e fiscalização (6.8). Marque "Não" para gerar a NC correspondente.</p>
+    <div class="tab-wrap">
+      <table>
+        <thead><tr><th style="min-width:150px">EPI</th><th>CA</th><th>CA válido?</th>
+          <th>Conservação</th><th>Uso correto?</th><th>Situação</th><th></th></tr></thead>
+        <tbody id="tbEPI"></tbody>
+      </table>
+    </div>
+    <div class="acoes" style="margin-top:12px">
+      <button class="btn laranja" onclick="addEPI()">➕ Linha</button>
+      <button class="btn ghost" onclick="gerarNCsEPI()">⚡ Gerar NCs das linhas não conformes</button>
+    </div>
+  </div>`;
+  pintarEPI();
+}
+function pintarEPI(){
+  const tb = $('#tbEPI'); if(!tb) return;
+  tb.innerHTML = inspAtual.epis.map((e,ix)=>{
+    const nc = (e.caValido==='Não' || e.usoCorreto==='Não' || e.conservacao==='Ruim');
+    return `<tr>
+      <td><input type="text" value="${esc(e.nome||'')}" list="dl_epi" oninput="setEPI(${ix},'nome',this.value)">
+        <datalist id="dl_epi">${EPIS_SUG.map(x=>`<option>${x}</option>`).join('')}</datalist></td>
+      <td><input type="text" value="${esc(e.ca||'')}" style="width:88px" oninput="setEPI(${ix},'ca',this.value)"></td>
+      <td><select onchange="setEPI(${ix},'caValido',this.value)">
+        ${['Sim','Não','N/A'].map(o=>`<option ${e.caValido===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      <td><select onchange="setEPI(${ix},'conservacao',this.value)">
+        ${['Boa','Regular','Ruim'].map(o=>`<option ${e.conservacao===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      <td><select onchange="setEPI(${ix},'usoCorreto',this.value)">
+        ${['Sim','Não','N/A'].map(o=>`<option ${e.usoCorreto===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      <td><span class="badge badge-${nc?'nc':'baixo'}">${nc?'NÃO CONFORME':'CONFORME'}</span></td>
+      <td><button class="btn mini perigo" onclick="delEPI(${ix})">🗑</button></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--txt-3);padding:20px">
+    Nenhum EPI verificado. Clique em "➕ Linha".</td></tr>`;
+}
+function addEPI(){
+  inspAtual.epis.push({nome:'', ca:'', caValido:'Sim', conservacao:'Boa', usoCorreto:'Sim'});
+  salvar(); pintarEPI();
+}
+function setEPI(ix,k,v){ inspAtual.epis[ix][k]=v; salvar(); if(k!=='nome'&&k!=='ca') pintarEPI(); }
+function delEPI(ix){ inspAtual.epis.splice(ix,1); salvar(); pintarEPI(); }
+function gerarNCsEPI(){
+  let n = 0;
+  inspAtual.epis.forEach(e=>{
+    if(!e.nome) return;
+    const probs = [];
+    if(e.caValido==='Não')      probs.push({t:`EPI "${e.nome}" sem Certificado de Aprovação (CA) válido`, it:'6.3', p:3, c:3});
+    if(e.conservacao==='Ruim')  probs.push({t:`EPI "${e.nome}" em estado de conservação inadequado para uso`, it:'6.6.1', p:3, c:3});
+    if(e.usoCorreto==='Não')    probs.push({t:`EPI "${e.nome}" em uso incorreto pelo trabalhador`, it:'6.7', p:4, c:2});
+    probs.forEach(pb=>{
+      const dup = inspAtual.achados.some(a=>a.descricao===pb.t);
+      if(dup) return;
+      novoAchado({origem:'OBSERVADO', tipo:pb.it==='6.7'?'AI':'CI', categoria:'epi',
+                  descricao:pb.t, nr:'NR-06', item:pb.it, p:pb.p, c:pb.c});
+      n++;
+    });
+  });
+  renumerar(); salvar();
+  toast(n ? `${n} NC gerada(s) a partir da tabela de EPIs.` : 'Nenhuma nova NC — tudo conforme ou já registrado.');
+  if(n) atualizarSub();
+}
+
+/* -------------------------------------------------------------------------
+   11. PLANO 5W2H
+   ------------------------------------------------------------------------- */
+function renderPlano(){
+  const lista = (inspAtual.achados||[]).filter(a=>a.origem==='OBSERVADO');
+  $('#p-plano').innerHTML = `
+  <div class="card">
+    <h2>🎯 Plano de ação 5W2H</h2>
+    <p class="small">Um card por não-conformidade constatada, com semáforo de prazo.
+      Itens <span class="badge badge-modelo">MODELO</span> não entram no plano até serem confirmados.</p>
+  </div>
+  ${lista.length ? `<div class="tab-wrap"><table>
+    <thead><tr><th>NC</th><th>What / Why</th><th>How</th><th>Who</th><th>When</th><th>How much</th><th></th></tr></thead>
+    <tbody>${lista.map(a=>{
+      const sem = semaforo(a.prazo), n = nivelDe(a);
+      return `<tr>
+        <td><b>${esc(a.cod)}</b><br><span class="badge badge-${n}" style="transform:scale(.85);transform-origin:left">${NIVEIS[n].rot}</span></td>
+        <td>${esc(a.descricao||'').slice(0,90)}<br><span class="small">${esc(a.porque||'—')}</span></td>
+        <td>${esc(a.acao||'—')}</td>
+        <td>${esc(a.responsavel||'—')}</td>
+        <td><span class="semaforo" style="background:${sem.cor}"></span>${fmtData(a.prazo)}
+          <br><span class="small" style="color:${sem.cor}">${sem.rot}</span></td>
+        <td>${esc(a.custo||'—')}</td>
+        <td><button class="btn mini" onclick="editarAchado('${a.id}')">Editar</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`
+    : vazio('🎯','Nenhuma NC constatada — o plano de ação é gerado a partir dos achados observados.')}`;
+}
+
+/* -------------------------------------------------------------------------
+   12. RELATÓRIO A4
+   ------------------------------------------------------------------------- */
+function cabPagina(i, emp, num, tot){
+  const logo = S.cfg.logoLBM
+    ? `<img class="logo-img" src="${S.cfg.logoLBM}" alt="LBM BORATTI" style="display:block">`
+    : `<div class="logo">LBM BORATTI<small>Consultoria em SST</small></div>`;
+  return `<div class="p-cab">${logo}
+    <div class="tit"><b>Relatório de Inspeção de Segurança do Trabalho</b>
+      ${esc(emp.nome||'')} — ${esc(i.area||'')} · ${fmtData(i.data)}</div></div>`;
+}
+function pePagina(i, emp, num, tot){
+  return `<div class="p-pe"><span>LBM BORATTI — Consultoria Personalizada em Segurança e Saúde no Trabalho</span>
+    <span class="espaco"></span><span>${esc(emp.nome||'')}</span><span>Página ${num} de ${tot}</span></div>`;
+}
+function pagina(i, emp, conteudo, num, tot, cls){
+  return `<div class="pagina ${cls||''}">${cabPagina(i,emp,num,tot)}
+    <div class="conteudo">${conteudo}</div>${pePagina(i,emp,num,tot)}</div>`;
+}
+
+/* Empacotamento por altura estimada (mm).
+   A .pagina tem overflow:hidden — conteúdo que passar da altura útil some
+   silenciosamente na impressão. Em vez de um número fixo de cards por página,
+   estimamos a altura de cada bloco e fechamos a página antes de estourar.
+   Área útil: 297mm − 28 (margens) − 12 (cabeçalho) − 10 (rodapé) − 9 (título) ≈ 238mm.
+   Trabalhamos com 228mm de folga de segurança. */
+const ALTURA_UTIL = 228;
+function empacotar(itens, alturaDe, colunas){
+  const cols = colunas||1, paginas = [];
+  let atual = [], h = 0, linha = 0;
+  for(const it of itens){
+    const a = alturaDe(it);
+    /* Em grade, a linha só consome altura quando um novo item a inicia. */
+    const consome = (cols===1 || atual.length % cols === 0) ? a : 0;
+    const alturaLinhaAnterior = (cols>1 && atual.length % cols !== 0)
+      ? Math.max(0, a - linha) : 0;
+    const inc = consome || alturaLinhaAnterior;
+    if(atual.length && h + inc > ALTURA_UTIL){
+      paginas.push(atual); atual = []; h = 0; linha = 0;
+      h += a; linha = a;
+    }else{
+      h += inc;
+      linha = (cols===1 || atual.length % cols === 0) ? a : Math.max(linha, a);
+    }
+    atual.push(it);
+  }
+  if(atual.length) paginas.push(atual);
+  return paginas;
+}
+/* Estimativas — deliberadamente conservadoras (erram para mais). */
+function alturaAchado(a){
+  const linhas = Math.ceil((a.descricao||'').length / 105);
+  return 26 + linhas*4.2 + (a.causa?5:0) + ((a.fotos||[]).length?20:0);
+}
+function alturaFoto(f){
+  const larg = 88;                                   // metade da faixa útil de 180mm
+  const r = (f.w && f.h) ? (f.w/f.h) : 4/3;
+  return Math.min(larg/r, 115) + 11;                 // imagem + legenda
+}
+function altura5w(a){
+  const linhas = Math.ceil((a.descricao||'').length / 55)
+               + Math.ceil((a.acao||'').length / 55);
+  return 26 + linhas*3.6;
+}
+function resumoAuto(i, obs){
+  const cr = contaNivel(obs,'critico'), al = contaNivel(obs,'alto');
+  const cats = [...new Set(obs.map(a=>a.categoria).filter(Boolean))]
+    .map(c=>(CAT_MAP[c]||{}).nome).filter(Boolean);
+  if(!obs.length){
+    return `Foi realizada inspeção de segurança do trabalho na área <b>${esc(i.area||'')}</b> da empresa
+      <b>${esc((empresaDe(i)||{}).nome||'')}</b>, em ${fmtData(i.data)}, na modalidade
+      <b>${esc(i.tipo||'')}</b>. Não foram constatadas não-conformidades registradas neste relatório.
+      Recomenda-se manter o monitoramento previsto no PGR (NR-01, item 1.7).`;
+  }
+  return `Foi realizada inspeção de segurança do trabalho na área <b>${esc(i.area||'')}</b> da empresa
+    <b>${esc((empresaDe(i)||{}).nome||'')}</b>, em ${fmtData(i.data)}, na modalidade <b>${esc(i.tipo||'')}</b>,
+    por meio de ${esc(i.metodo||'observação direta em campo')}. Foram constatadas
+    <b>${obs.length} não-conformidades</b>, das quais <b>${cr}</b> classificadas como CRÍTICAS e
+    <b>${al}</b> como ALTAS, distribuídas ${cats.length?`nas seguintes frentes: ${esc(cats.join('; '))}`:'nas frentes verificadas'}.
+    ${cr?`As não-conformidades críticas demandam <b>ação imediata</b>, com interdição do equipamento ou da
+    área até a comprovação da correção.`:''}
+    Todos os achados devem ser incorporados ao inventário de riscos e ao plano de ação do PGR,
+    conforme NR-01, itens 1.6.3 e 1.7.`;
+}
+function conclusaoAuto(i, obs){
+  const cr = contaNivel(obs,'critico'), al = contaNivel(obs,'alto');
+  if(!obs.length){
+    return `Nas condições e no momento da verificação, a área inspecionada não apresentou
+      não-conformidades passíveis de registro. Ressalta-se que a inspeção retrata a situação
+      observada na data e no horário indicados, não substituindo o monitoramento contínuo
+      previsto no PGR (NR-01, item 1.7), nem as avaliações quantitativas de agentes ambientais.`;
+  }
+  return `Conclui-se que a área inspecionada apresenta ${obs.length} não-conformidade(s) em relação
+    às Normas Regulamentadoras aplicáveis. ${cr?`Há <b>${cr}</b> não-conformidade(s) de classificação CRÍTICA,
+    caracterizando risco grave e iminente, cuja correção não admite postergação — cabendo, até a
+    regularização, a interdição do equipamento ou da área e a garantia do direito de recusa
+    previsto na NR-01, item 1.5.3. `:''}${al?`As <b>${al}</b> não-conformidade(s) de classificação ALTA
+    devem ser sanadas em até 7 dias, com comunicação ao SESMT e à CIPA. `:''}Recomenda-se a incorporação
+    integral dos achados ao inventário de riscos ocupacionais do PGR (NR-01, item 1.6.3), a execução
+    do plano de ação 5W2H constante deste relatório com registro de evidências, e a verificação da
+    eficácia das medidas implantadas (NR-01, item 1.7). Este relatório retrata a situação observada
+    na data da inspeção e não substitui avaliações quantitativas de agentes ambientais.`;
+}
+
+async function gerarRelatorio(){
+  const i = inspAtual; if(!i) return;
+  const emp = empresaDe(i)||{};
+  const obs = achadosObs(i);
+  const mod = (i.achados||[]).filter(a=>a.origem==='MODELO');
+  const rt = S.cfg.rt||RT_PADRAO;
+
+  const urls = {};
+  for(const f of (i.fotos||[])) urls[f.id] = await Fotos.get(f.id) || '';
+
+  const P = [];   // páginas montadas na ordem
+  const logoCapa = S.cfg.logoLBM
+    ? `<img src="${S.cfg.logoLBM}" alt="LBM BORATTI" style="display:block">`
+    : `<div class="lbm">LBM BORATTI<small>Consultoria Personalizada em SST</small></div>`;
+
+  /* --- 1. CAPA --- */
+  P.push(`<div class="pagina capa"><div class="capa-in">
+    <div class="capa-logos">${logoCapa}</div>
+    <h1>Relatório de Inspeção de<br>Segurança do Trabalho</h1>
+    <div class="linha-l"></div>
+    <div class="emp">${esc(emp.nome||'—')}</div>
+    <div class="sub">${esc(i.area||'—')}</div>
+    <div class="dados">
+      <div><div class="k">Data da inspeção</div>${fmtData(i.data)}${i.horario?' · '+esc(i.horario):''}</div>
+      <div><div class="k">Tipo de inspeção</div>${esc(i.tipo||'—')}</div>
+      <div><div class="k">CNPJ</div>${esc(emp.cnpj||'—')}</div>
+      <div><div class="k">Grau de risco / CNAE</div>GR ${esc(emp.gr||'—')} · ${esc(emp.cnae||'—')}</div>
+      <div><div class="k">Inspetor responsável</div>${esc(i.inspetor||rt.nome)}</div>
+      <div><div class="k">Não-conformidades</div>${obs.length} constatada(s)${mod.length?` · ${mod.length} item(ns) modelo`:''}</div>
+    </div>
+    <div class="rod"><b>${esc(rt.nome)}</b><br>${esc(rt.reg1)}<br>${esc(rt.reg2)}<br>${esc(rt.contato)}</div>
+  </div></div>`);
+
+  /* --- 2. SUMÁRIO EXECUTIVO + DADOS GERAIS --- */
+  P.push(pagina(i, emp, `
+    <div class="r-sec">1. Sumário executivo</div>
+    ${mod.length?`<div class="r-txt" style="border-left:4px solid #8a94a3;background:#f4f6f9;padding:7px 10px">
+      <b>Versão-modelo parcial:</b> este relatório contém ${mod.length} item(ns) típico(s) pré-preenchido(s),
+      identificados como <b>[MODELO]</b>, ainda pendentes de constatação em campo. Tais itens
+      <b>não integram</b> os indicadores abaixo nem o plano de ação.</div>`:''}
+    <div class="r-txt">${i.resumo ? esc(i.resumo).replace(/\n/g,'<br>') : resumoAuto(i,obs)}</div>
+    <div class="r-kpis">
+      <div class="r-kpi"><div class="n">${obs.length}</div><div class="l">Total de NCs</div></div>
+      <div class="r-kpi critico"><div class="n">${contaNivel(obs,'critico')}</div><div class="l">Críticas</div></div>
+      <div class="r-kpi alto"><div class="n">${contaNivel(obs,'alto')}</div><div class="l">Altas</div></div>
+      <div class="r-kpi medio"><div class="n">${contaNivel(obs,'medio')}</div><div class="l">Médias / Baixas</div></div>
+    </div>
+    <div class="r-sec">2. Dados gerais da inspeção</div>
+    <table class="r-tab">
+      <tr><th style="width:26%">Empresa</th><td>${esc(emp.nome||'—')}</td>
+          <th style="width:16%">CNPJ</th><td>${esc(emp.cnpj||'—')}</td></tr>
+      <tr><th>Endereço</th><td colspan="3">${esc(emp.endereco||'—')}</td></tr>
+      <tr><th>Área / setor</th><td>${esc(i.area||'—')}</td><th>Data</th><td>${fmtData(i.data)}</td></tr>
+      <tr><th>Horário</th><td>${esc(i.horario||'—')}</td><th>Tipo</th><td>${esc(i.tipo||'—')}</td></tr>
+      <tr><th>Inspetor</th><td>${esc(i.inspetor||rt.nome)}</td>
+          <th>Modalidade</th><td>${esc((MODOS.find(m=>m.id===i.modo)||{}).rot||'—')}</td></tr>
+      <tr><th>Método</th><td colspan="3">${esc(i.metodo||'—')}</td></tr>
+      <tr><th>Acompanhantes</th><td colspan="3">${esc(i.acompanhantes||'—')}</td></tr>
+      <tr><th>Nº de trabalhadores</th><td>${esc(emp.trabalhadores||'—')}</td>
+          <th>GR / CNAE</th><td>GR ${esc(emp.gr||'—')} · ${esc(emp.cnae||'—')}</td></tr>
+    </table>
+    <div class="r-sec">3. Critério de classificação</div>
+    <table class="r-tab">
+      <thead><tr><th>Nível</th><th>Critério</th><th>Score P×C</th><th>Prazo</th></tr></thead>
+      <tr><td><span class="badge badge-critico">CRÍTICO</span></td><td>Risco de morte ou lesão grave iminente</td><td>16 – 25</td><td>Imediato / interdição</td></tr>
+      <tr><td><span class="badge badge-alto">ALTO</span></td><td>Risco de lesão com afastamento</td><td>10 – 15</td><td>até 7 dias</td></tr>
+      <tr><td><span class="badge badge-medio">MÉDIO</span></td><td>Risco de lesão sem afastamento / passivo de autuação</td><td>5 – 9</td><td>até 30 dias</td></tr>
+      <tr><td><span class="badge badge-baixo">BAIXO</span></td><td>Conformidade administrativa / melhoria preventiva</td><td>1 – 4</td><td>até 90 dias</td></tr>
+    </table>
+    <div class="r-txt" style="font-size:.66rem;color:#5a6675">Metodologia: matriz Probabilidade × Consequência
+      alinhada à NR-01 (GRO). Itens sinalizados com ⚠️ indicam numeração normativa a confirmar
+      na redação vigente publicada em gov.br/MTE antes do uso do documento para fins de defesa.</div>`,
+    2, 0));
+
+  /* --- 4. EPIs --- */
+  if((i.epis||[]).length){
+    P.push(pagina(i, emp, `
+      <div class="r-sec">4. Verificação de EPIs — NR-06</div>
+      <table class="r-tab">
+        <thead><tr><th>EPI</th><th>CA</th><th>CA válido</th><th>Conservação</th><th>Uso correto</th><th>Situação</th></tr></thead>
+        ${i.epis.map(e=>{
+          const nc = (e.caValido==='Não'||e.usoCorreto==='Não'||e.conservacao==='Ruim');
+          return `<tr><td>${esc(e.nome||'—')}</td><td>${esc(e.ca||'—')}</td><td>${esc(e.caValido||'—')}</td>
+            <td>${esc(e.conservacao||'—')}</td><td>${esc(e.usoCorreto||'—')}</td>
+            <td><span class="badge badge-${nc?'nc':'baixo'}">${nc?'NÃO CONFORME':'CONFORME'}</span></td></tr>`;
+        }).join('')}
+      </table>
+      <div class="r-txt" style="font-size:.68rem">Base normativa: NR-06 — item 6.3 (Certificado de Aprovação),
+        item 6.6.1 (obrigação do empregador de fornecer EPI adequado ao risco e em perfeito estado),
+        item 6.7 (obrigação do empregado quanto ao uso correto) e item 6.8 (fiscalização do uso).</div>`,
+      3, 0));
+  }
+
+  /* --- 5/6. Achados --- */
+  const achadosOrd = i.achados||[];
+  if(achadosOrd.length){
+    empacotar(achadosOrd, alturaAchado, 1).forEach((bloco, k)=>{
+      P.push(pagina(i, emp, `
+        ${k===0?`<div class="r-sec">${(i.epis||[]).length?'5':'4'}. Achados — atos e condições inseguras</div>`:
+                 `<div class="r-sec" style="opacity:.55">Achados (continuação)</div>`}
+        ${bloco.map(a=>{
+          const n = nivelDe(a);
+          return `<div class="r-achado n-${n}">
+            <div class="cab"><span class="cod">${esc(a.cod)}</span>
+              <span class="badge badge-${a.tipo==='AI'?'ai':'ci'}">${a.tipo==='AI'?'ATO INSEGURO':'CONDIÇÃO INSEGURA'}</span>
+              <span class="badge badge-${n}">${NIVEIS[n].rot} · P${a.p}×C${a.c}=${scoreDe(a)}</span>
+              ${a.origem==='OBSERVADO'?`<span class="badge badge-obs">OBSERVADO</span>`
+                                      :`<span class="badge badge-modelo">[MODELO — editar conforme observado]</span>`}
+              <span class="espaco"></span>
+              <span style="font-size:.62rem;color:#5a6675">Prazo: <b>${fmtData(a.prazo)}</b></span></div>
+            <div style="font-size:.74rem;margin-bottom:5px">${esc(a.descricao||'—')}</div>
+            <div class="cp"><div class="k">Base legal</div><div class="v"><b>${esc(a.nr)} ${esc(a.item)}</b>${a.conf?' ⚠️ confirmar item na redação vigente':''}</div></div>
+            ${a.causa?`<div class="cp"><div class="k">Causa raiz</div><div class="v">${esc(a.causa)}</div></div>`:''}
+            <div class="cp"><div class="k">Local</div><div class="v">${esc(a.local||i.area||'—')}</div></div>
+            ${(a.fotos||[]).length?`<div class="fotos-mini">${a.fotos.map(fid=>{
+              const f = i.fotos.find(x=>x.id===fid); if(!f) return '';
+              const ix = i.fotos.indexOf(f)+1;
+              return `<div class="fm"><img src="${urls[fid]||''}" alt="Foto ${ix}"></div>`;
+            }).join('')}<span style="font-size:.6rem;color:#8a94a3;align-self:flex-end">registro fotográfico vinculado</span></div>`:''}
+          </div>`;
+        }).join('')}`, 0, 0));
+    });
+  }
+
+  /* --- 7. Registros fotográficos --- */
+  if((i.fotos||[]).length){
+    empacotar(i.fotos, alturaFoto, 2).forEach((bloco, k)=>{
+      P.push(pagina(i, emp, `
+        ${k===0?`<div class="r-sec">Registros fotográficos</div>`:`<div class="r-sec" style="opacity:.55">Registros fotográficos (continuação)</div>`}
+        <div class="r-galeria">${bloco.map(f=>{
+          const ix = i.fotos.indexOf(f)+1;
+          const ncs = (i.achados||[]).filter(a=>(a.fotos||[]).includes(f.id));
+          const pins = (f.pins||[]).map(p=>{
+            const a = (i.achados||[]).find(x=>x.id===p.achadoId);
+            const n = a?nivelDe(a):'info';
+            return `<div class="pin n-${n}" style="left:${p.x}%;top:${p.y}%">${a?a.cod.replace('NC-','').replace(/^0+/,''):'?'}</div>`;
+          }).join('');
+          return `<div class="r-foto"><div class="im" style="aspect-ratio:${(f.w||4)}/${(f.h||3)}">
+              <img src="${urls[f.id]||''}" alt="Foto ${ix}">${pins}</div>
+            <div class="lg"><b>Foto ${String(ix).padStart(2,'0')}</b> — ${esc(f.legenda||'sem legenda')}
+              ${f.categoria?`<br><span style="color:#5a6675">${esc((CAT_MAP[f.categoria]||{}).nome||'')}</span>`:''}
+              ${ncs.length?`<br><span style="color:#922b21;font-weight:700">${ncs.map(a=>esc(a.cod)).join(' · ')}</span>`:''}
+            </div></div>`;
+        }).join('')}</div>`, 0, 0));
+    });
+  }
+
+  /* --- 8. Plano 5W2H --- */
+  const plano = obs;
+  if(plano.length){
+    empacotar(plano, altura5w, 1).forEach((bloco, k)=>{
+      P.push(pagina(i, emp, `
+        ${k===0?`<div class="r-sec">Plano de ação — 5W2H</div>`:`<div class="r-sec" style="opacity:.55">Plano de ação (continuação)</div>`}
+        ${bloco.map(a=>{
+          const n = nivelDe(a), sem = semaforo(a.prazo);
+          return `<div class="r-5w">
+            <div class="h"><span class="cod">${esc(a.cod)}</span>
+              <span class="badge badge-${n}">${NIVEIS[n].rot}</span>
+              <span class="espaco"></span>
+              <span style="font-size:.62rem"><span class="semaforo" style="background:${sem.cor}"></span>${sem.rot}</span></div>
+            <div class="b">
+              <div><div class="k">What — o quê</div>${esc(a.descricao||'—')}</div>
+              <div><div class="k">Why — por quê</div>${esc(a.porque||`Eliminar a exposição ao risco e atender ${a.nr} ${a.item}`)}</div>
+              <div><div class="k">Where — onde</div>${esc(a.local||i.area||'—')}</div>
+              <div><div class="k">Who — quem</div>${esc(a.responsavel||'A definir pela empresa')}</div>
+              <div><div class="k">How — como</div>${esc(a.acao||'Definir medida de controle conforme hierarquia da NR-01 (eliminação → engenharia → administrativa → EPI)')}</div>
+              <div><div class="k">When — quando / How much</div>${fmtData(a.prazo)} · ${esc(a.custo||'a orçar')}</div>
+            </div></div>`;
+        }).join('')}`, 0, 0));
+    });
+  }
+
+  /* --- 9. Conclusão e assinaturas --- */
+  P.push(pagina(i, emp, `
+    <div class="r-sec">Conclusão e parecer técnico</div>
+    <div class="r-txt">${i.conclusao ? esc(i.conclusao).replace(/\n/g,'<br>') : conclusaoAuto(i,obs)}</div>
+    <div class="r-sec" style="margin-top:14px">Encaminhamentos</div>
+    <div class="r-txt">
+      1. Incorporar os achados ao inventário de riscos ocupacionais do PGR — NR-01, item 1.6.3.<br>
+      2. Executar o plano de ação 5W2H com registro documental das evidências de conclusão.<br>
+      3. Verificar a eficácia das medidas implantadas — NR-01, item 1.7.<br>
+      4. Dar ciência à CIPA e ao SESMT, quando existentes, e aos trabalhadores expostos — NR-01, item 1.5.<br>
+      5. Atualizar os eventos do eSocial (S-2240) quando houver alteração das condições ambientais.
+      ${contaNivel(obs,'critico')?`<br>6. <b>Interditar imediatamente</b> os equipamentos e áreas objeto das
+        não-conformidades críticas até a comprovação documental da correção.`:''}
+    </div>
+    <div class="r-assin">
+      <div class="r-txt" style="font-size:.68rem;color:#5a6675">Documento emitido em ${fmtData(hojeISO())}.
+        A inspeção retrata a situação observada na data e no horário indicados.</div>
+      <div class="linhas">
+        <div class="ln"><b>${esc(rt.nome)}</b>
+          ${esc(rt.reg1)}<br>${esc(rt.reg2)}<br>Responsável técnico — LBM BORATTI</div>
+        <div class="ln"><b>${esc(emp.responsavel||'Representante da empresa')}</b>
+          ${esc(emp.nome||'')}<br>Ciente do relatório e do plano de ação<br>Data: ____/____/________</div>
+      </div>
+      <div class="r-txt" style="font-size:.62rem;color:#8a94a3;text-align:center;margin-top:16px">
+        LBM BORATTI — Consultoria Personalizada em Segurança e Saúde no Trabalho<br>
+        ${esc(rt.contato)}</div>
+    </div>`, 0, 0));
+
+  /* Numeração final das páginas */
+  const tot = P.length;
+  let html = P.join('');
+  let n = 0;
+  html = html.replace(/Página \d+ de \d+/g, ()=> `Página ${++n+1} de ${tot}`);
+
+  $('#relPaginas').innerHTML = html;
+  $('#relTitulo').textContent = `${emp.nome||''} — ${i.area||''} · ${fmtData(i.data)} · ${tot} páginas`;
+  document.body.classList.add('modo-relatorio');
+  window.scrollTo(0,0);
+}
+function fecharRelatorio(){
+  document.body.classList.remove('modo-relatorio');
+  $('#relPaginas').innerHTML = '';
+}
+
+/* -------------------------------------------------------------------------
+   13. PACOTE PARA ANÁLISE POR IA
+   ------------------------------------------------------------------------- */
+function exportarPacoteIA(){
+  const i = inspAtual, emp = empresaDe(i)||{};
+  const pacote = {
+    _instrucoes: [
+      'Pacote gerado pelo app de Inspeção SST da LBM BORATTI.',
+      'Anexe no chat as fotos listadas em "fotos" (na mesma ordem) junto com este JSON.',
+      'Peça: "analise estas fotos de inspeção e devolva os achados no formato achados_sugeridos".',
+      'A análise deve retornar, por foto: descricao, nr, item, p (1-5), c (1-4), causa, acao — ',
+      'e sinalizar com conf:true todo item cuja numeração precise ser confirmada na redação vigente.',
+      'Cole o JSON de retorno em Ajustes > Importar backup NÃO; use o campo de achados manualmente.',
+    ],
+    empresa: {nome:emp.nome, cnpj:emp.cnpj, cnae:emp.cnae, gr:emp.gr,
+              trabalhadores:emp.trabalhadores, endereco:emp.endereco},
+    inspecao: {area:i.area, data:i.data, tipo:i.tipo,
+               modo:(MODOS.find(m=>m.id===i.modo)||{}).rot, inspetor:i.inspetor,
+               metodo:i.metodo, acompanhantes:i.acompanhantes},
+    fotos: (i.fotos||[]).map((f,ix)=>({
+      ordem: ix+1, arquivo: f.nome||('foto_'+(ix+1)),
+      legenda: f.legenda||'', categoria_suspeita:(CAT_MAP[f.categoria]||{}).nome||'',
+      marcacoes:(f.pins||[]).length
+    })),
+    achados_ja_registrados: (i.achados||[]).map(a=>({
+      cod:a.cod, origem:a.origem, tipo:a.tipo, descricao:a.descricao,
+      nr:a.nr, item:a.item, p:a.p, c:a.c, nivel:NIVEIS[nivelDe(a)].rot, prazo:a.prazo
+    })),
+    epis: i.epis||[],
+    categorias_disponiveis: CATEGORIAS.map(c=>({id:c.id, nome:c.nome, nr:c.nr})),
+    escala: {
+      probabilidade:'1 Improvável · 2 Remota · 3 Possível · 4 Provável · 5 Frequente',
+      consequencia:'1 Baixa · 2 Média · 3 Alta · 4 Crítica',
+      niveis:'score 1-4 BAIXO(90d) · 5-9 MÉDIO(30d) · 10-15 ALTO(7d) · 16-25 CRÍTICO(imediato)'
+    }
+  };
+  const nome = `pacote-ia_${(emp.nome||'empresa').replace(/[^\w]+/g,'-').toLowerCase()}_${i.data||hojeISO()}.json`;
+  baixar(nome, JSON.stringify(pacote, null, 2));
+  abrirModal('Pacote exportado', `
+    <div class="aviso info"><b>Arquivo:</b> <span class="mono">${esc(nome)}</span></div>
+    <p>Para a leitura técnica automática das imagens:</p>
+    <ol style="padding-left:20px;line-height:1.75">
+      <li>Abra o chat com o assistente da LBM.</li>
+      <li>Anexe <b>as fotos desta inspeção</b> (${(i.fotos||[]).length} arquivo(s)) e o JSON baixado.</li>
+      <li>Peça: <i>"analise estas fotos de inspeção e devolva os achados com NR, item e criticidade"</i>.</li>
+      <li>Cadastre os achados retornados em <b>Achados / NCs → Novo achado</b>, ou peça o relatório
+          já redigido em HTML.</li>
+    </ol>
+    <p class="small">O JSON leva empresa, área, categorias, achados já registrados e a escala de
+      criticidade — assim a análise volta no mesmo padrão do app, sem retrabalho de classificação.</p>`,
+    [{rot:'Entendi', cls:'laranja', fn:fecharModal}]);
+}
+
+/* -------------------------------------------------------------------------
+   14. AJUSTES / BACKUP
+   ------------------------------------------------------------------------- */
+function renderAjustes(){
+  const rt = S.cfg.rt||RT_PADRAO;
+  $('#rtNome').value = rt.nome||''; $('#rtReg1').value = rt.reg1||'';
+  $('#rtReg2').value = rt.reg2||''; $('#rtContato').value = rt.contato||'';
+  $('#previewLogo').innerHTML = S.cfg.logoLBM
+    ? `<img src="${S.cfg.logoLBM}" style="max-height:64px;background:#fff;border:1px solid var(--linha);padding:6px 10px;border-radius:6px">`
+    : `<p class="small">Nenhum logo carregado — os relatórios usam o fallback textual
+        <b>“LBM BORATTI — Consultoria em SST”</b>.</p>`;
+  const nFotos = S.inspecoes.reduce((s,i)=>s+(i.fotos||[]).length,0);
+  let kb = 0; try{ kb = Math.round((localStorage.getItem(CHAVE)||'').length/1024); }catch(e){}
+  $('#infoArmazen').innerHTML =
+    `${S.empresas.length} empresa(s) · ${S.inspecoes.length} inspeção(ões) ·
+     ${S.inspecoes.reduce((s,i)=>s+(i.achados||[]).length,0)} achado(s) · ${nFotos} foto(s)<br>
+     Dados estruturados: ~${kb} KB em localStorage · Fotos em
+     ${Fotos.memoria?'<b style="color:#c0392b">memória volátil (serão perdidas ao fechar)</b>':'IndexedDB'}.`;
+}
+function salvarRT(){
+  S.cfg.rt = {nome:$('#rtNome').value.trim(), reg1:$('#rtReg1').value.trim(),
+              reg2:$('#rtReg2').value.trim(), contato:$('#rtContato').value.trim()};
+  salvar(); toast('Responsável técnico salvo.');
+}
+function carregarLogo(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const {dataUrl} = await comprimir(f);
+      S.cfg.logoLBM = dataUrl; salvar(); renderAjustes(); aplicarLogo();
+      toast('Logo carregado.');
+    }catch(err){ toast('Falha ao carregar o logo.'); }
+  };
+  inp.click();
+}
+function removerLogo(){ delete S.cfg.logoLBM; salvar(); renderAjustes(); aplicarLogo(); }
+function aplicarLogo(){
+  const img = $('#logoTop');
+  if(S.cfg.logoLBM){ img.src = S.cfg.logoLBM; img.style.display='block'; }
+  else { img.removeAttribute('src'); img.style.display='none'; }
+}
+
+async function exportarBackup(){
+  toast('Preparando backup…', 4000);
+  const fotos = await Fotos.todas();
+  const usadas = {};
+  S.inspecoes.forEach(i=>(i.fotos||[]).forEach(f=>{ if(fotos[f.id]) usadas[f.id]=fotos[f.id]; }));
+  const bk = {_app:'lbm-inspecao-sst', _versao:1, _em:new Date().toISOString(), estado:S, fotos:usadas};
+  baixar(`backup-inspecao-sst_${hojeISO()}.json`, JSON.stringify(bk));
+  toast('Backup exportado.');
+}
+function importarBackup(inp){
+  const f = inp.files[0]; inp.value=''; if(!f) return;
+  const fr = new FileReader();
+  fr.onload = async ()=>{
+    let bk;
+    try{ bk = JSON.parse(fr.result); }catch(e){ return toast('Arquivo inválido.'); }
+    if(bk._app!=='lbm-inspecao-sst' || !bk.estado) return toast('Este arquivo não é um backup do app.');
+    if(!confirm('Importar substitui TODOS os dados atuais deste navegador. Continuar?')) return;
+    S = bk.estado;
+    if(!S.cfg) S.cfg={}; if(!S.cfg.rt) S.cfg.rt=Object.assign({},RT_PADRAO); if(!S.seq) S.seq=1;
+    await Fotos.limpar();
+    for(const [k,v] of Object.entries(bk.fotos||{})) await Fotos.set(k,v);
+    salvar(); aplicarLogo(); irPara('painel'); toast('Backup importado.');
+  };
+  fr.readAsText(f);
+}
+function apagarTudo(){
+  if(!confirm('Apagar TODAS as empresas, inspeções e fotos deste navegador?')) return;
+  if(!confirm('Confirmação final: esta ação é irreversível. Exportou um backup?')) return;
+  Fotos.limpar();
+  try{ localStorage.removeItem(CHAVE); }catch(e){}
+  S = {empresas:[], inspecoes:[], cfg:{rt:Object.assign({},RT_PADRAO)}, seq:1};
+  salvar(); aplicarLogo(); irPara('painel'); toast('Dados apagados.');
+}
+
+/* -------------------------------------------------------------------------
+   15. INICIALIZAÇÃO
+   ------------------------------------------------------------------------- */
+carregar();
+aplicarLogo();
+irPara('painel');
+window.addEventListener('beforeprint', ()=>{
+  if(!document.body.classList.contains('modo-relatorio'))
+    toast('Abra "Gerar relatório" antes de imprimir.');
+});
+</script>
+</body>
+</html>
