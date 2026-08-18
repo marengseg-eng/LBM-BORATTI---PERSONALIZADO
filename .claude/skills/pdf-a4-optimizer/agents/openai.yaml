@@ -1,0 +1,5 @@
+interface:
+  display_name: "PDF A4 Optimizer"
+  short_description: "Otimiza PDFs para A4 profissional, com escala, centralizacao e validacao visual."
+  icon: "📄"
+  primary_color: "#1a2f4e"
