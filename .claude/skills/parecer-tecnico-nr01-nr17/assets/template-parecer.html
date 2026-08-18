@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Parecer Técnico — Fatores de Riscos Psicossociais e AEP — NR-01 e NR-17</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a2f4e; --navy-dark:#0f2440; --navy-mid:#1f3a5f; --navy-soft:#24446e;
+  --orange:#e67e22; --orange-soft:#fdf0e2;
+  --line:#e3e8ef; --zebra:#f7f9fc; --ink:#2b3a4d; --mute:#6b7d93; --mute-l:#8fa9c9;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#dfe4ea}
+body{font-family:'Barlow',system-ui,-apple-system,Arial,sans-serif;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+.folha{width:210mm;min-height:297mm;background:#fff;margin:10mm auto;position:relative;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2px 18px rgba(0,0,0,.18)}
+.corpo{flex:1;padding:6mm 9mm 0;display:flex;flex-direction:column}
+
+/* ---------- HEADER ---------- */
+.cab{position:relative;height:31mm;background:var(--navy-dark);display:flex;align-items:center;
+  overflow:hidden}
+.cab::after{content:'';position:absolute;inset:0 0 0 62%;background:var(--navy-mid)}
+.cab .logo{position:relative;z-index:2;margin-left:9mm;height:22mm;width:auto;border-radius:4px}
+.cab .tit{position:relative;z-index:2;margin-left:auto;margin-right:9mm;text-align:right;
+  max-width:136mm;min-width:0}
+.cab .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1.6px;color:var(--orange);text-transform:uppercase}
+.cab h1{font-size:21.5px;font-weight:800;color:#fff;letter-spacing:.1px;line-height:1.15;
+  margin:3px 0 4px;max-width:132mm;margin-left:auto}
+.cab .sub{font-size:10.5px;color:#b8c7db;letter-spacing:.2px}
+.stripe{height:5px;background:var(--orange)}
+
+/* ---------- IDENTIFICAÇÃO ---------- */
+.ident{display:flex;border-radius:10px;overflow:hidden;background:var(--navy);margin-bottom:5mm}
+.ident .emp{background:var(--navy-soft);padding:9px 13px;display:flex;align-items:center;gap:9px;
+  min-width:44%;flex:1}
+.ident .dot{width:9px;height:9px;border-radius:50%;background:var(--orange);flex:none}
+.ident .emp b{color:#fff;font-size:13px;font-weight:700;letter-spacing:.1px;line-height:1.2}
+.ident .col{padding:9px 13px;border-left:1px solid rgba(255,255,255,.10);flex:none}
+.ident .lab{font-size:8.5px;font-weight:700;letter-spacing:1.1px;color:var(--mute-l);text-transform:uppercase}
+.ident .val{font-size:12.5px;font-weight:700;color:#fff;margin-top:2px;white-space:nowrap}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:5mm}
+.kpi{border-radius:11px;padding:11px 8px;text-align:center;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;width:70px;height:70px;border-radius:50%;
+  background:rgba(255,255,255,.13);top:-26px;right:-20px}
+.kpi .n{position:relative;font-size:29px;font-weight:800;color:#fff;line-height:1.05}
+.kpi .l{position:relative;font-size:8.5px;font-weight:700;letter-spacing:.5px;color:rgba(255,255,255,.94);
+  text-transform:uppercase;margin-top:3px;line-height:1.25}
+.k1{background:#2aa8e8}.k2{background:#7b3fe4}.k3{background:#12a37a}.k4{background:#f0821e}
+
+/* ---------- TÍTULO DE SEÇÃO ---------- */
+.sec{display:flex;align-items:baseline;gap:9px;margin-bottom:3.5mm}
+.sec .bar{width:5px;height:19px;background:var(--orange);border-radius:3px;flex:none;transform:translateY(3px)}
+.sec h2{font-size:17px;font-weight:700;color:var(--navy);white-space:nowrap}
+.sec .hint{margin-left:auto;font-size:9px;color:var(--mute);white-space:nowrap;padding-left:10px}
+
+/* ---------- DASHBOARD ---------- */
+.dash{display:grid;grid-template-columns:33.5% 1fr;gap:10px;margin-bottom:4.5mm;
+  flex:1;min-height:104mm;max-height:126mm}
+.rosca{background:var(--navy-dark);border-radius:11px;padding:12px 12px 13px;text-align:center;
+  display:flex;flex-direction:column}
+.rosca .badge{background:var(--navy-mid);border-radius:20px;padding:6px 8px;font-size:9.5px;font-weight:700;
+  letter-spacing:.7px;color:var(--orange);text-transform:uppercase}
+.rosca svg{display:block;margin:auto auto 10px}
+.rosca .c1{font-size:29px;font-weight:800;fill:#fff}
+.rosca .c2{font-size:7.4px;font-weight:600;fill:var(--mute-l);letter-spacing:.8px}
+.rosca .t1{font-size:9px;color:#c3d3e6;margin-top:auto}
+.rosca .t2{font-size:8px;color:#8fa9c9;margin-top:2px}
+.rosca .t3{font-size:9px;font-weight:700;color:#fff;margin-top:8px;letter-spacing:.2px}
+.rosca .t4{font-size:7.6px;color:#8fa9c9;margin-top:3px}
+
+.rank{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden;display:flex;flex-direction:column}
+.rank .h{background:var(--navy);padding:8px 12px;display:flex;align-items:center}
+.rank .h b{color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.rank .h span{margin-left:auto;font-size:8.5px;color:#9fb4cd;white-space:nowrap;padding-left:8px}
+.rank .row{display:flex;align-items:center;gap:7px;padding:0 10px;flex:1;border-top:1px solid #eef2f7}
+.rank .row:nth-child(odd){background:var(--zebra)}
+.rank .chip{width:11px;height:11px;border-radius:3px;flex:none}
+.rank .pos{font-size:9px;font-weight:700;color:#9aa9bc;width:20px;flex:none}
+.rank .nome{font-size:11px;font-weight:700;color:var(--navy);flex:1;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.rank .trilha{display:block;width:118px;height:9px;background:#e5eaf1;border-radius:5px;overflow:hidden;flex:none}
+.rank .fill{display:block;height:100%;border-radius:5px}
+.rank .pct{width:36px;text-align:right;font-size:12px;font-weight:800;flex:none}
+.rank .tag{font-size:8px;font-weight:800;letter-spacing:.4px;padding:3px 7px;border-radius:5px;
+  border:1px solid;width:64px;text-align:center;flex:none}
+
+/* ---------- LEITURA TÉCNICA ---------- */
+.leitura{background:#fff6ec;border:1px solid #f5d9bc;border-left:4px solid var(--orange);
+  border-radius:9px;padding:9px 12px;margin-bottom:4.5mm}
+.leitura b{display:block;font-size:10.5px;font-weight:800;color:var(--orange);letter-spacing:.8px;
+  text-transform:uppercase;margin-bottom:3px}
+.leitura p{font-size:10.2px;line-height:1.5;color:#41556e}
+
+/* ---------- MINI CARDS AEP ---------- */
+.aep{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4.5mm}
+.aep .c{border:1.5px solid;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:11px}
+.aep .n{font-size:25px;font-weight:800;line-height:1}
+.aep .l{font-size:9.3px;font-weight:600;color:#41556e;line-height:1.3}
+.a1{background:#eaf6fe;border-color:#a8d9f5}.a1 .n{color:#2196f3}
+.a2{background:#eefaf4;border-color:#a5dfc6}.a2 .n{color:#12a37a}
+.a3{background:#fdf0f4;border-color:#f3bacd}.a3 .n{color:#e91e63}
+
+/* ---------- RODAPÉ DE ENQUADRAMENTO ---------- */
+.enq{background:var(--navy);border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);
+  gap:16px;padding:10px 14px}
+.enq .b{border-left:2px solid;padding-left:9px}
+.enq .k{font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+.enq .v{font-size:9.3px;color:#c3d3e6;margin-top:2px;line-height:1.35}
+.e1{border-color:#f4d03f}.e1 .k{color:#f4d03f}
+.e2{border-color:#f4d03f}.e2 .k{color:#f4d03f}
+.e3{border-color:#2ecc71}.e3 .k{color:#2ecc71}
+
+/* ---------- FOLHA 2 ---------- */
+.top2{display:grid;grid-template-columns:31% 1fr;gap:10px;margin-bottom:3.5mm}
+.vered{background:var(--navy-dark);border-radius:11px;padding:12px 14px 13px}
+.vered .r{display:flex;align-items:center}
+.vered .k{font-size:10px;font-weight:800;letter-spacing:1.1px;color:var(--orange);text-transform:uppercase}
+.vered .ck{margin-left:auto;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;color:#fff;font-size:13px;font-weight:800}
+.vered .v{font-size:26px;font-weight:800;color:#fff;letter-spacing:.3px;margin:7px 0 9px;line-height:1.1}
+.vered .selo{display:inline-block;border-radius:7px;padding:6px 14px;font-size:10.5px;font-weight:800;
+  color:#fff;letter-spacing:.6px}
+.ciclo{background:#fff;border:1px solid var(--line);border-left:5px solid var(--orange);
+  border-radius:11px;padding:11px 15px}
+.ciclo .tag{display:inline-block;background:var(--orange-soft);color:var(--orange);border-radius:20px;
+  padding:4px 12px;font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.ciclo h3{font-size:18px;font-weight:800;color:#2b6cb0;margin:7px 0 5px}
+.ciclo p{font-size:10.4px;line-height:1.5;color:#41556e}
+
+.etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4mm}
+.etapa{background:#fff;border:1px solid var(--line);border-left:4px solid;border-radius:10px;
+  padding:10px 13px;display:flex;align-items:center;gap:12px}
+.etapa .n{font-size:19px;font-weight:800;line-height:1}
+.etapa .k{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.etapa .t{font-size:11.5px;font-weight:800;color:var(--navy);margin:2px 0 1px;white-space:nowrap}
+.etapa .s{font-size:9px;color:var(--mute);white-space:nowrap}
+.p1{border-left-color:#2aa8e8}.p1 .n,.p1 .k{color:#2aa8e8}
+.p2{border-left-color:#12a37a}.p2 .n,.p2 .k{color:#12a37a}
+.p3{border-left-color:var(--orange)}.p3 .n,.p3 .k{color:var(--orange)}
+
+table.prov{width:100%;border-collapse:collapse;margin-bottom:3.5mm;border:1px solid var(--line)}
+table.prov th{background:var(--navy);color:#fff;font-size:10.2px;font-weight:700;text-align:left;
+  padding:7px 9px;letter-spacing:.2px}
+table.prov td{font-size:9.8px;line-height:1.42;padding:6px 9px;border-top:1px solid var(--line);
+  vertical-align:top;color:#41556e}
+table.prov tr:nth-child(even) td{background:var(--zebra)}
+table.prov td.num{text-align:center;font-weight:800;color:var(--navy);width:30px}
+table.prov td.nat{width:88px;font-weight:800;font-size:9.6px;letter-spacing:.3px}
+table.prov td.resp{width:96px}
+table.prov td.prazo{width:150px}
+.obrig{color:var(--navy)}.recom{color:var(--orange)}
+/* aplicada automaticamente quando ha mais de 4 providencias, para a folha 2 nao estourar */
+table.prov.compacta td{font-size:9.1px;line-height:1.34;padding:4.5px 8px}
+table.prov.compacta th{font-size:9.6px;padding:6px 8px}
+
+.regaet{background:#f2fbf6;border:1px solid #bfe6cf;border-left:4px solid #12a37a;border-radius:9px;
+  padding:8px 12px;margin-bottom:3.5mm}
+.regaet b{display:block;font-size:10.5px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.regaet p{font-size:10px;line-height:1.5;color:#41556e}
+
+.concl{background:#eef4fb;border:1px solid #cfe0f2;border-left:5px solid var(--navy);border-radius:10px;
+  padding:10px 14px 11px;margin-bottom:3mm}
+.concl h2{font-size:15.5px;font-weight:800;color:var(--navy);margin-bottom:7px}
+.concl .tarjas{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:9px}
+.concl .t{padding:8px;text-align:center;font-size:10.5px;font-weight:800;letter-spacing:.5px;
+  border:1px solid;text-transform:uppercase}
+.concl p{font-size:10.4px;line-height:1.55;color:#2b3a4d}
+.concl p .az{color:#2aa8e8;font-weight:700}
+.concl p .vd{color:#12a37a;font-weight:700}
+.concl p .lj{color:var(--orange);font-weight:700}
+
+.fim{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:auto;padding-bottom:3mm}
+.fontes{font-size:9px;line-height:1.55;color:var(--mute)}
+.fontes .h{color:#41556e;font-weight:600}
+.fontes a,.fontes .lk{color:#2b6cb0;text-decoration:none}
+.assin{text-align:center;padding-top:9px;border-top:1px solid #b9c5d4;align-self:start}
+.assin .nm{font-size:11.5px;font-weight:700;color:#2b3a4d;letter-spacing:.4px}
+.assin .cr{font-size:10px;color:#41556e;line-height:1.5}
+.assin .ct{font-size:9.6px;color:var(--mute);margin-top:2px}
+
+.rodape{border-top:1px solid var(--line);padding:3.5mm 9mm;display:flex;align-items:center;
+  font-size:9px;color:var(--mute)}
+.rodape b{color:var(--navy);font-weight:800;margin-right:9px}
+.rodape .pg{margin-left:auto;font-weight:700;color:var(--navy)}
+
+/* ---------- IMPRESSÃO ---------- */
+.btn{position:fixed;top:14px;right:14px;z-index:99;background:var(--orange);color:#fff;border:0;
+  border-radius:8px;padding:11px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
+  box-shadow:0 3px 10px rgba(0,0,0,.25)}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  .no-print{display:none!important}
+  .folha{margin:0;box-shadow:none;page-break-after:always;break-after:page}
+  .folha:last-child{page-break-after:auto;break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<button class="btn no-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+
+<!-- ================= FOLHA 1 — DASHBOARD ================= -->
+<section class="folha">
+  <header class="cab">
+    <img class="logo" src="{{LOGO_BASE64}}" alt="LBM BORATTI">
+    <div class="tit">
+      <div class="eyebrow">Parecer Técnico · {{REVISAO}}</div>
+      <h1>FATORES DE RISCOS PSICOSSOCIAIS E AEP</h1>
+      <div class="sub">NR-01 E NR-17 · {{N_FATORES}} FATORES AVALIADOS · GRO/PGR</div>
+    </div>
+  </header>
+  <div class="stripe"></div>
+
+  <div class="corpo">
+    <div class="ident">
+      <div class="emp"><span class="dot"></span><b>{{EMPRESA}}</b></div>
+      <div class="col"><div class="lab">CNPJ</div><div class="val">{{CNPJ}}</div></div>
+      <div class="col"><div class="lab">Avaliação</div><div class="val">{{DATA_AVALIACAO}}</div></div>
+      <div class="col"><div class="lab">Emissão</div><div class="val">{{DATA_EMISSAO}}</div></div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi k1"><div class="n">{{TRABALHADORES}}</div><div class="l">Trabalhadores avaliados</div></div>
+      <div class="kpi k2"><div class="n">{{INDICE_GLOBAL}}%</div><div class="l">Índice global do método</div></div>
+      <div class="kpi k3"><div class="n">{{CONFORMES}}</div><div class="l">Fatores classificados conforme</div></div>
+      <div class="kpi k4"><div class="n">AET</div><div class="l">{{STATUS_AET_KPI}}</div></div>
+    </div>
+
+    <div class="sec">
+      <span class="bar"></span><h2>Dashboard dos fatores psicossociais avaliados</h2>
+      <span class="hint">ranking completo · gráfico central · leitura executiva</span>
+    </div>
+
+    <div class="dash">
+      <div class="rosca">
+        <div class="badge">Gráfico de rosca · {{N_FATORES}} fatores</div>
+        <svg width="215" height="215" viewBox="0 0 120 120">
+          <g transform="rotate(-90 60 60)" fill="none" stroke-width="26">
+            {{DONUT_SEGMENTOS}}
+          </g>
+          <text class="c1" x="60" y="59" text-anchor="middle">{{INDICE_GLOBAL}}%</text>
+          <text class="c2" x="60" y="69" text-anchor="middle">ÍNDICE GLOBAL</text>
+          <text class="c2" x="60" y="78" text-anchor="middle">{{N_FATORES}} FATORES</text>
+        </svg>
+        <div class="t1">Distribuição relativa do somatório dos escores</div>
+        <div class="t2">Base visual: {{BASE_VISUAL}} pontos de escore</div>
+        <div class="t3">{{RESUMO_CLASSIFICACAO}}</div>
+        <div class="t4">O gráfico não representa prevalência clínica ou legal</div>
+      </div>
+
+      <div class="rank">
+        <div class="h"><b>RANKING COMPLETO DOS FATORES AVALIADOS</b><span>escore · escala 0% a 100%</span></div>
+        {{RANKING_LINHAS}}
+      </div>
+    </div>
+
+    <div class="leitura">
+      <b>Leitura técnica do dashboard</b>
+      <p>{{LEITURA_TECNICA}}</p>
+    </div>
+
+    <div class="aep">
+      <div class="c a1"><div class="n">{{AEP_TOTAL}}</div><div class="l">itens avaliados na AEP</div></div>
+      <div class="c a2"><div class="n">{{AEP_BAIXA}}</div><div class="l">baixa gravidade e ocorrência improvável</div></div>
+      <div class="c a3"><div class="n">{{AEP_PIOR}}</div><div class="l">item médio, alto, crítico, substancial ou intolerável</div></div>
+    </div>
+
+    <div class="enq">
+      <div class="b e1"><div class="k">NR-17</div><div class="v">AEP, AET e organização do trabalho</div></div>
+      <div class="b e2"><div class="k">NR-01</div><div class="v">fatores psicossociais integrados ao GRO/PGR</div></div>
+      <div class="b e3"><div class="k">Status</div><div class="v">{{STATUS_RODAPE}}</div></div>
+    </div>
+  </div>
+
+  <footer class="rodape">
+    <b>LBM BORATTI</b> Marcelo Luís Boratti de Melo | CREA-SP 5069572947 | CREFITO 3/209468-F
+    <span class="pg">1 / 2</span>
+  </footer>
+</section>
+
+<!-- ================= FOLHA 2 — PARECER ================= -->
+<section class="folha">
+  <header class="cab">
+    <img class="logo" src="{{LOGO_BASE64}}" alt="LBM BORATTI">
+    <div class="tit">
+      <div class="eyebrow">Síntese conclusiva</div>
+      <h1>Parecer e recomendações</h1>
+      <div class="sub">{{EMPRESA_CURTA}} · {{STATUS_AET_SUB}} · {{CODIGO_PARECER}} · {{REVISAO}}</div>
+    </div>
+  </header>
+  <div class="stripe"></div>
+
+  <div class="corpo">
+    <div class="top2">
+      <div class="vered">
+        <div class="r"><span class="k">Parecer técnico</span>
+          <span class="ck" style="background:{{COR_VEREDICTO}}">{{ICONE_VEREDICTO}}</span></div>
+        <div class="v">{{VEREDICTO}}</div>
+        <span class="selo" style="background:{{COR_VEREDICTO}}">{{SELO_AET}}</span>
+      </div>
+      <div class="ciclo">
+        <span class="tag">{{CICLO_STATUS}}</span>
+        <h3>AEP + AET + FATORES PSICOSSOCIAIS</h3>
+        <p>{{TEXTO_CICLO}}</p>
+      </div>
+    </div>
+
+    <div class="etapas">
+      <div class="etapa p1"><div class="n">01</div><div><div class="k">AEP</div>
+        <div class="t">{{ETAPA_AEP}}</div><div class="s">Diagnóstico preliminar</div></div></div>
+      <div class="etapa p2"><div class="n">02</div><div><div class="k">AET</div>
+        <div class="t">{{ETAPA_AET}}</div><div class="s">Aprofundamento ergonômico</div></div></div>
+      <div class="etapa p3"><div class="n">03</div><div><div class="k">GRO/PGR</div>
+        <div class="t">AÇÃO CONTÍNUA</div><div class="s">Integração e acompanhamento</div></div></div>
+    </div>
+
+    <div class="sec">
+      <span class="bar"></span><h2>3. Manutenção e acompanhamento dos controles</h2>
+    </div>
+
+    <table class="prov{{CLASSE_TABELA}}">
+      <thead><tr><th style="width:30px">Nº</th><th>Providência</th><th style="width:88px">Natureza</th>
+        <th style="width:96px">Responsável</th><th style="width:150px">Prazo / evidência</th></tr></thead>
+      <tbody>
+        {{PROVIDENCIAS_LINHAS}}
+      </tbody>
+    </table>
+
+    <div class="regaet">
+      <b>{{TITULO_REGISTRO_AET}}</b>
+      <p>{{REGISTRO_AET}}</p>
+    </div>
+
+    <div class="concl">
+      <h2>4. Conclusão técnica do parecer</h2>
+      <div class="tarjas">
+        <div class="t" style="{{ESTILO_TARJA_1}}">{{TARJA_1}}</div>
+        <div class="t" style="background:#fff;border-color:#cfe0f2;color:var(--navy)">{{TARJA_2}}</div>
+        <div class="t" style="background:#fff6ec;border-color:#f0c69a;color:var(--orange)">{{TARJA_3}}</div>
+      </div>
+      <p>{{CONCLUSAO_TEXTO}}</p>
+    </div>
+
+    <div class="fim">
+      <div class="fontes">
+        <div class="h">Fontes oficiais consultadas em {{DATA_EMISSAO}}</div>
+        {{FONTES}}
+        <div style="margin-top:4px">Documento-base: {{DOC_BASE}}, avaliação de {{DATA_AVALIACAO}},
+          código {{COD_LAUDO}}.</div>
+      </div>
+      <div class="assin">
+        <div class="nm">MARCELO LUÍS BORATTI DE MELO</div>
+        <div class="cr">Engenheiro de Segurança do Trabalho — CREA-SP 5069572947<br>
+          Fisioterapeuta e Ergonomista — CREFITO 3/209468-F</div>
+        <div class="ct">marengseg@gmail.com | (16) 99338-8989 | Sertãozinho/SP</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="rodape">
+    <b>LBM BORATTI</b> Marcelo Luís Boratti de Melo | CREA-SP 5069572947 | CREFITO 3/209468-F
+    <span class="pg">2 / 2</span>
+  </footer>
+</section>
+
+</body>
+</html>

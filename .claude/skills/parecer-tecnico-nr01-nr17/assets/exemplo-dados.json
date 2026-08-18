@@ -1,0 +1,62 @@
+{
+  "empresa": "GR Montagens Industriais Guariba",
+  "empresa_curta": "GR Montagens Industriais Guariba",
+  "cnpj": "34.194.672/0001-05",
+  "data_avaliacao": "15/06/2026",
+  "data_emissao": "08/08/2026",
+  "revisao": "REV. 05",
+  "codigo_parecer": "PT-NR17-GR-080826",
+  "trabalhadores": "67/67",
+  "indice_informado": 21,
+
+  "fatores": [
+    {"nome": "Condições Ergonômicas", "escore": 24.4},
+    {"nome": "Jornada", "escore": 23.7},
+    {"nome": "Controle", "escore": 22.0},
+    {"nome": "Assédio Moral", "escore": 21.0},
+    {"nome": "Demanda", "escore": 20.4},
+    {"nome": "Apoio Social", "escore": 20.3},
+    {"nome": "Assédio Verbal", "escore": 20.2},
+    {"nome": "Assédio Físico / Violência", "escore": 20.1},
+    {"nome": "Papel", "escore": 19.9},
+    {"nome": "Relacionamentos", "escore": 19.4},
+    {"nome": "Assédio Sexual", "escore": 19.0},
+    {"nome": "Mudança", "escore": 18.0}
+  ],
+
+  "aep": {"total": 61, "baixa": 61, "media_ou_pior": 0},
+  "aet": "concluida",
+
+  "leitura_tecnica": "Os 12 fatores permaneceram entre 18% e 24%, dentro da faixa metodológica denominada Conforme. Os maiores escores foram condições ergonômicas e jornada (24%), controle (22%) e assédio moral (21%). A classificação do instrumento não substitui o acompanhamento dos controles no GRO/PGR.",
+
+  "status_rodape": "AEP registrada · AET concluída · monitoramento mantido",
+
+  "texto_ciclo": "Conforme atualização do responsável técnico, a AET foi elaborada, considerada tecnicamente adequada e concluída. O ciclo do período reúne avaliação psicossocial, AEP e AET finalizada.",
+
+  "etapa_aep": "CONCLUÍDA E REGISTRADA",
+
+  "providencias": [
+    {"providencia": "Integrar os resultados da AEP e dos fatores psicossociais ao inventário de riscos e inserir as medidas aplicáveis no plano de ação do PGR.",
+     "natureza": "OBRIGAÇÃO", "responsavel": "SST / direção", "prazo": "Até 30 dias; PGR atualizado e assinado."},
+    {"providencia": "Manter evidências da participação dos trabalhadores e dos controles: consultas, atas, comunicação, treinamentos e acompanhamento das ações.",
+     "natureza": "OBRIGAÇÃO", "responsavel": "RH / SST / CIPA", "prazo": "Contínuo; registros rastreáveis."},
+    {"providencia": "Orientar lideranças sobre clareza de atribuições, diálogo, cooperação e tratamento justo e respeitoso. Se houver obrigação de constituir CIPA, manter procedimento de denúncia com sigilo.",
+     "natureza": "OBRIGAÇÃO", "responsavel": "Direção / RH", "prazo": "Até 60 dias; procedimento e lista de presença."},
+    {"providencia": "Reavaliar os fatores até 14/06/2027, como boa prática preventiva. Antecipar diante de mudança, ineficácia, doença/acidente relacionado, solicitação justificada ou outro gatilho normativo.",
+     "natureza": "RECOMENDAÇÃO", "responsavel": "Direção / RT", "prazo": "Anual recomendado; regra geral da NR-01: bienal ou antes dos gatilhos."}
+  ],
+
+  "titulo_registro_aet": "Registro de conclusão da AET",
+  "registro_aet": "Conforme informação prestada pelo responsável técnico, a AET foi finalizada e está tecnicamente correta, ficando cumprida a etapa de aprofundamento ergonômico. Para composição do dossiê, devem ser mantidos a versão final da AET, a assinatura e o registro de responsabilidade técnica aplicável, bem como as evidências de restituição dos resultados e participação dos trabalhadores. Permanecem adotados neste parecer os dados consolidados do laudo: 67 trabalhadores e índice global de 21%.",
+
+  "conclusao_texto": "À vista do LAUDO PSICOSSOCIAL, da <span class=\"az\">AEP</span> e da <span class=\"vd\">AET CONCLUÍDA</span>, emite-se <span class=\"vd\">PARECER FAVORÁVEL</span>, com o CICLO AVALIATIVO CONCLUÍDO para o período analisado. A organização deve manter os resultados integrados ao <span class=\"lj\">GRO/PGR</span>, executar e comprovar as MEDIDAS DE PREVENÇÃO e acompanhar sua eficácia. Nova revisão ou aprofundamento deverá ocorrer diante de mudanças, insuficiência dos controles, acidente ou doença relacionada ao trabalho, solicitação justificada ou outro gatilho previsto na <span class=\"lj\">NR-01</span> e na <span class=\"lj\">NR-17</span>.",
+
+  "doc_base": "Laudo de Fatores Psicossociais e AEP — GR Montagens Industriais",
+  "cod_laudo": "RPS-MG-ZC8Z7",
+
+  "fontes": [
+    "MTE — NR-17, Ergonomia, texto oficial vigente.",
+    "MTE — NR-01, redação vigente desde 26/05/2026.",
+    "MTE — Perguntas e Respostas GRO/PGR, maio de 2026."
+  ]
+}
