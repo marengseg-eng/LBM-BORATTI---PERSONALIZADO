@@ -28,12 +28,13 @@ from datetime import datetime, timedelta
 CORES = ["#2aa8e8", "#3b5bdb", "#7b3fe4", "#ec2f72", "#f4511e", "#f5a623",
          "#12a37a", "#0fc2d6", "#2dd4a7", "#8b5cf6", "#f4306d", "#3b82f6"]
 
+# O texto do badge vai impresso no documento — precisa da acentuacao correta.
 FAIXAS = [
     (0,  24,  "Conforme", "CONFORME", "#1e7a4a", "#f0fbf4", "#7fce9f"),
-    (25, 44,  "Atencao",  "ATENCAO",  "#8a6100", "#fff8e6", "#e8c766"),
+    (25, 44,  "Atenção",  "ATENÇÃO",  "#8a6100", "#fff8e6", "#e8c766"),
     (45, 59,  "Moderado", "MODERADO", "#a55200", "#fff2e4", "#efab6d"),
     (60, 74,  "Elevado",  "ELEVADO",  "#a52626", "#fdeeee", "#e79a9a"),
-    (75, 100, "Critico",  "CRITICO",  "#7d1d1d", "#fbe4e4", "#d97070"),
+    (75, 100, "Crítico",  "CRÍTICO",  "#7d1d1d", "#fbe4e4", "#d97070"),
 ]
 
 RAIO = 54.0
@@ -61,9 +62,9 @@ def reavaliacao(data_avaliacao):
 def veredicto(ranking, aep, aet):
     """Aplica as regras na ordem do SKILL.md e devolve TODOS os motivos aplicaveis."""
     aet = (aet or "").lower().replace("_", " ")
-    graves = [f for f in ranking if f["classificacao"] in ("Elevado", "Critico")]
+    graves = [f for f in ranking if f["classificacao"] in ("Elevado", "Crítico")]
     fora = [f for f in ranking
-            if f["classificacao"] in ("Atencao", "Moderado")]
+            if f["classificacao"] in ("Atenção", "Moderado")]
     aep_pior = aep.get("media_ou_pior", 0) or 0
 
     def lista(fs):
